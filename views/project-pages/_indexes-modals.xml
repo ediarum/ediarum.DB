@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div>
+    <script type="text/javascript">
+function showOptionsForConnection() {
+    var selected = $('#connection-id-select-box').val();
+    $("option[class^='option-for-connection-']").hide();
+    $(".option-for-connection-"+selected).show();
+    $("#select-collection-name").val($("#select-collection-name option:first").val());
+    return 0;
+};
+
+function showWarningForEdiarumIndex() {
+    var structureSelected = $('#ediarum-index-structure-select-box').val();
+    $('[id^=warning-ediarum-index-]').hide();
+    $('#warning-ediarum-index-'+structureSelected).show();
+    return 0;
+};
+
+function changeSpansForEdiarumIndex() {
+    var indexCollection = $('#select-ediarum-index-id').find(':selected').attr('data-index-collection');
+    var indexFile = $('#select-ediarum-index-id').find(':selected').attr('data-index-file');
+    $('.span-ediarum-index-collection').text(indexCollection);
+    $('.span-ediarum-index-file').text(indexFile);
+    return 0;
+};
+
+function showDivsForEdiarumIndex() {
+    var indexType = $('#select-ediarum-index-id').find(':selected').attr('data-index-type');
+    if (indexType == 'index') {
+        $('#ediarum-index-type').show();
+    }
+    if (indexType == 'data') {
+        $('#ediarum-index-type').hide();
+    }
+    return 0;
+};
+
+$(document).ready(function() {
+    $('#modalNewZoteroIndex').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var modal = $(this)
+        modal.find('input[name="index-id"]').val(button.data('id'))
+        modal.find('input[name="index-type"]').val(button.data('type'))
+        modal.find('input[name="index-label"]').val(button.data('label'))
+        modal.find('select[name="connection-id"]').val(button.data('connection-id'))
+        showOptionsForConnection();
+        modal.find('select[name="collection-id"]').val(button.data('collection-id'))
+    });
+    $('#connection-id-select-box').change(function() {
+        showOptionsForConnection();
+    });
+    $('#modalNewProjectIndex').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var modal = $(this)
+        modal.find('input[name="index-id"]').val(button.data('id'))
+        modal.find('input[name="index-type"]').val(button.data('type'))
+        modal.find('input[name="index-label"]').val(button.data('label'))
+        modal.find('input[name="data-collection"]').val(button.data('data-collection'))
+        modal.find('input[name="data-namespace"]').val(button.data('data-namespace'))
+        modal.find('input[name="data-node"]').val(button.data('data-node'))
+        modal.find('input[name="data-xmlid"]').val(button.data('data-xmlid'))
+        modal.find('input[name="data-span"]').val(button.data('data-span'))
+    });
+    $('#ediarum-index-structure-select-box').change(function() {
+        showWarningForEdiarumIndex();
+    });
+    $('#select-ediarum-index-id').change(function() {
+        showDivsForEdiarumIndex();
+        changeSpansForEdiarumIndex();
+    });
+    showDivsForEdiarumIndex();
+    showWarningForEdiarumIndex();
+    changeSpansForEdiarumIndex();
+});
+    </script>
+    <div class="modal" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>Processing...</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div id="progressbar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- for project indexes -->
+    <div class="modal fade" id="modalNewProjectIndex" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Register (Projekt)</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="add-project-index"/>
+                    <input type="hidden" name="index-type" value="project"/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="id">API-ID</label>
+                            <input type="text" class="form-control" placeholder="ID" name="index-id"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="label">Bezeichnung</label>
+                            <input type="text" class="form-control" placeholder="Name" name="index-label"/>
+                        </div>
+                        <div id="index-project-inputs">
+                            <div class="form-group">
+                                <label for="data-collection">Registerordner / -datei</label>
+                                <input type="text" class="form-control" placeholder="Register/Personen" name="data-collection"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="data-namespace">Namespace</label>
+                                <input type="text" class="form-control" placeholder="tei:http://www.tei-c.org/ns/1.0" name="data-namespace"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="data-node">Node</label>
+                                <input type="text" class="form-control" placeholder="tei:TEI" name="data-node"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="data-xmlid">XML-ID</label>
+                                <input type="text" class="form-control" placeholder="@xml:id" name="data-xmlid"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="data-span">Span</label>
+                                <input type="text" class="form-control" placeholder="//tei:title" name="data-span"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Speichern</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+    <!-- for zotero indexes -->
+    <div class="modal fade" id="modalNewZoteroIndex" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Register (Zotero)</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="add-zotero-index"/>
+                    <input type="hidden" name="index-type" value="zotero"/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="id">API-ID</label>
+                            <input type="text" class="form-control" placeholder="ID" name="index-id"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="label">Bezeichnung</label>
+                            <input type="text" class="form-control" placeholder="Name" name="index-label"/>
+                        </div>
+                        <div id="index-zotero-inputs">
+                            <div class="form-group">
+                                <label for="connection-name">Zotero-Verbindung</label>
+                                <div data-template="project-pages:select-box-with-zotero-connections" />
+                            </div>
+                            <div class="form-group">
+                                <label for="collection-name">Zotero-Ordner</label>
+                                <div data-template="project-pages:select-box-with-zotero-connection-collections" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Speichern</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+    <!-- for ediarum indexes -->
+    <div class="modal fade" id="modalNewEdiarumIndex" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Ediarum-Register</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="activate-ediarum-index"/>
+                    <input type="hidden" name="index-type" value="ediarum"/>
+                    <div class="modal-body">
+                        <p>Diese Aktion legt ein neues Ediarum Register an und erstellt die notwendigen Dateien.</p>
+                        <div id="ediarum-index-inputs">
+                            <div class="form-group">
+                                <label for="connection-name">Ediarum-Register</label>
+                                <div data-template="project-pages:select-box-with-ediarum-indexes"/>
+                            </div>
+                        </div>
+                        <div id="ediarum-index-type">
+                            <div class="form-group">
+                                <label for="label">Registeraufbau</label>
+                                <select id="ediarum-index-structure-select-box" class="form-control" name="ediarum-index-structure">
+                                    <option value="one-file" selected="selected">Register in einer Datei</option>
+                                    <option value="one-file-per-letter">Register nach Buchstaben getrennt</option>
+                                </select>
+                            </div>
+                            <div class="alert alert-warning" id="warning-ediarum-index-one-file">
+                                <p>Achtung: Folgende Datei wird erstellt bzw. überschrieben:</p>
+                                <ul>
+                                    <li><span class="span-ediarum-index-file">personen.xml</span></li>
+                                </ul>
+                            </div>
+                            <div class="alert alert-warning" id="warning-ediarum-index-one-file-per-letter">
+                                <p >Achtung: Folgende Dateien werden erstellt bzw. überschrieben:</p>
+                                <ul>
+                                    <li><span class="span-ediarum-index-collection">Register/Personen</span>/A.xml</li>
+                                    <li>...</li>
+                                    <li><span class="span-ediarum-index-collection">Register/Personen</span>/Z.xml</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Aktivieren</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+</div>

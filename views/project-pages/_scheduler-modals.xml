@@ -1,0 +1,135 @@
+<div>
+    <script type="text/javascript">
+$(document).ready(function() {
+    var schedulerEdiarumRoutinen = <div data-template="project-pages:get-scheduler-ediarum-routinen"/>;
+    var schedulerProjectRoutinen = <div data-template="project-pages:get-scheduler-project-routinen"/>;
+
+    function replaceOptions (select, newOptions) {
+        select.children('option').remove();
+        $.each(newOptions, function(key, value) {
+             select.append($("<option/>").attr("value",key).text(value));
+        });
+    };
+
+    function reloadXqueries (type) {
+        if (type=='ediarum') {
+            replaceOptions($('#scheduler-job-xquery'), schedulerEdiarumRoutinen);
+        }
+        if (type=='project') {
+            replaceOptions($('#scheduler-job-xquery'), schedulerProjectRoutinen);
+        }
+        $('#scheduler-job-xquery').removeAttr("disabled");
+        $('#scheduler-job-submit').removeAttr("disabled");
+        reloadParameters($('#scheduler-job-xquery').val());
+    };
+
+    function reloadParameters (xqueryName) {
+        $("#scheduler-job-parameters").children('div').remove();
+        var routinenParameter = <div data-template="project-pages:get-scheduler-routinen-parameter"/>;
+        if (xqueryName in routinenParameter) {
+            var jobParameters = routinenParameter[xqueryName];
+            $.each(jobParameters, function(key, value) {
+                var parameterName = key;
+                var parameterId = "scheduler-job-param-".concat(parameterName);
+                var parameterLabel = parameterName.toLowerCase().replace(/\b[a-z]/g, function (letter) {
+                    return letter.toUpperCase();
+                });
+                $('#scheduler-job-parameters').append($("<div/>").attr("class","form-group").append($("<label/>").attr("class","heading-blue").attr("for",parameterId).text(parameterLabel),
+                    $("<input/>").attr("type","text").attr("class","form-control").attr("name",parameterId).attr("id",parameterId).attr("placeholder",value) ));
+            });
+        };
+    };
+
+    $('#modalNewSchedulerJob').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var modal = $(this);
+        modal.find('input[name="scheduler-job-id"]').val(button.data('scheduler-job-id'));
+        modal.find('input[name="scheduler-job-name"]').val(button.data('scheduler-job-name'));
+        modal.find('select[name="scheduler-job-cron-select"]').val(button.data('scheduler-job-cron'));
+        if (!$('#scheduler-job-cron-select option:selected').length || button.data('scheduler-job-cron')=='') {
+            $('#scheduler-job-cron-select').val('');
+            $('#scheduler-job-cron-input').attr('readonly', null);
+        };
+        $('#scheduler-job-cron-input').val(button.data('scheduler-job-cron'));
+        modal.find('select[name="scheduler-job-type"]').val(button.data('scheduler-job-type'));
+        reloadXqueries(button.data('scheduler-job-type'));
+        modal.find('select[name="scheduler-job-xquery"]').val(button.data('scheduler-job-xquery'));
+        reloadParameters(button.data('scheduler-job-xquery'));
+        $( "input[name^='scheduler-job-param-']" ).each(function() {
+            $( this ).val( button.data($( this ).attr('name')) );
+        });
+    });
+    $('#scheduler-job-type').change(function () {
+        reloadXqueries($('#scheduler-job-type').val());
+    });
+    $('#scheduler-job-cron-select').change(function () {
+        var val = $(this).val();
+        $('#scheduler-job-cron-input').val(val);
+        if (val == "") {
+            $('#scheduler-job-cron-input').attr('readonly', null);
+        } else {
+            $('#scheduler-job-cron-input').attr('readonly', 'readonly');
+        };
+    });
+    $('#scheduler-job-xquery').change(function(){reloadParameters($('#scheduler-job-xquery').val())});
+});
+    </script>
+    <div class="modal fade" id="modalNewSchedulerJob" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Scheduler</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="add-scheduler-job"/>
+                    <input type="hidden" name="scheduler-job-id"/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="scheduler-job-name">Name</label>
+                            <input type="text" class="form-control" placeholder="Name" name="scheduler-job-name" id="scheduler-job-name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduler-job-cron-select">Periode</label>
+                            <!-- TODO -->
+                            <select name="scheduler-job-cron-select" class="form-control" id="scheduler-job-cron-select">
+                                <option value="0/10 * * * *">Alle 10 Minuten</option>
+                                <option value="0 * * * *">Stündlich</option>
+                                <option value="0 0/2 * * *">Alle 2 Stunden (jeweils zur geraden Stunde)</option>
+                                <option value="0 0/6 * * *">Alle 6 Stunden (um 0h, 6h, 12h und 18h)</option>
+                                <option value="0 0/12 * * *">Alle 12 Stunden (um 0h und 12h)</option>
+                                <option value="0 0 * * *">Täglich (um 0h)</option>
+                                <option value="0 0 * * 0">Wöchentlich (Sonntags, um 0h)</option>
+                                <option value="0 0 1 * *">Monatlich (am 1., um 0h)</option>
+                                <option value="">Manuelle Eingabe</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduler-job-cron">Cron-Ausdruck:</label>
+                            <input type="text" name="scheduler-job-cron" id="scheduler-job-cron-input" readonly="readonly"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduler-job-type">Typ</label>
+                            <select class="form-control" name="scheduler-job-type" id="scheduler-job-type">
+                                <option value="ediarum">ediarum-Routine</option>
+                                <option value="project">Projekt-Routine</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduler-job-xquery">XQuery</label>
+                            <select class="form-control" name="scheduler-job-xquery" id="scheduler-job-xquery" disabled="disabled"/>
+                        </div>
+                        <label>Parameter</label>
+                        <div id="scheduler-job-parameters"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit" id="scheduler-job-submit" disabled="disabled">Speichern</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+</div>

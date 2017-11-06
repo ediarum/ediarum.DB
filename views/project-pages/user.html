@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div data-template="project-pages:user">
+        <div data-template="templates:include" data-template-path="views/project-pages/_user-modals.xml"/>
+        <h1>
+            <span data-template="project-pages:get-current-project">Current Project</span>
+        </h1>
+        <div data-template="project-pages:action-alert"/>
+        <!--h2>Manager</h2>
+        <div data-template="project-pages:project-admin-list">Managerliste</div>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <span class="navbar-brand" for="zuname">Neuer Projektmanager:</span>
+                </div>
+                <form class="navbar-form navbar-left" role="search" action="" method="post">
+                    <div class="form-group">
+                        <label for="project-name" class="sr-only">Benutzername</label>
+                        <input type="text" class="form-control" placeholder="Benutzername" name="user-name"/>
+                        <input type="hidden" name="action" value="add-project-admin"/>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default">Hinzufügen!</button>
+                    </div>
+                </form>
+            </div>
+        </nav-->
+        <h2>Benutzer</h2>
+        <div data-template="project-pages:user-list">Nutzerliste</div>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <span class="navbar-brand" for="zuname">Neues Projektmitglied:</span>
+                </div>
+                <form class="navbar-form navbar-left" role="search" action="" method="post">
+                    <div class="form-group">
+                        <label for="project_name" class="sr-only">Benutzername</label>
+                        <input type="text" class="form-control" placeholder="Benutzername" name="user-name"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="project_name" class="sr-only">Passwort</label>
+                        <input type="password" class="form-control" placeholder="Passwort" name="password"/>
+                        <input type="hidden" name="action" value="new-user"/>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default">Anlegen!</button>
+                    </div>
+                </form>
+            </div>
+        </nav>
+    </div>
+</div>

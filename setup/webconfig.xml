@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<webconfig>
+    <baseurl>http://example.com/exist/rest/db/projects/PROJECT/web</baseurl>
+    <data>/db/projects/PROJECT/data</data>
+    <instance>test</instance>
+</webconfig>

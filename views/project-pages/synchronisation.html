@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div data-template="project-pages:synchronisation">
+        <div data-template="templates:include" data-template-path="views/project-pages/_synchronisation-modals.xml"/>
+        <h1>
+            <span data-template="project-pages:get-current-project">Current Project</span>
+        </h1>
+        <div data-template="project-pages:action-alert"/>
+        <h2>Push-Synchronisation</h2>
+        <div data-template="project-pages:list-push-synchronisation-targets"/>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <span class="navbar-brand" for="zuname">Neue Push-Synchronisation</span>
+                </div>
+                <div class="navbar-form">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalNewPushSynchronisation">Hinzufügen!</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <h2>Pull-Synchronisation</h2>
+        <div data-template="project-pages:list-pull-synchronisation-targets"/>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <span class="navbar-brand" for="zuname">Neue Pull-Synchronisation</span>
+                </div>
+                <div class="navbar-form">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalNewPullSynchronisation">Hinzufügen!</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>

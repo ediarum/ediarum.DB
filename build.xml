@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xdb="http://exist-db.org/ant" xmlns:if="ant:if" default="xar" name="ediarum">
+    <property name="project.app" value="ediarum"/>
+    <property name="build.dir" value="build"/>
+    <property name="archive.dir" value="temp"/>
+    <property name="release.dir" value="release"/>
+    <property file="build.properties"/>
+    <property name="project.version" value="${build.major.number}.${build.minor.number}.${build.patch.number}.${build.build.number}"/>
+    <target name="show-version" description="Shows the current version number">
+        <echo>Current build number:${project.version}</echo>
+    </target>
+    <target name="increase-build-number">
+        <propertyfile file="build.properties">
+            <entry key="build.build.number" type="int" operation="+" value="1" pattern="0"/>
+        </propertyfile>
+    </target>
+    <target name="increase-patch-number" description="Increases the patch number">
+        <propertyfile file="build.properties">
+            <entry key="build.patch.number" type="int" operation="+" value="1" pattern="0"/>
+        </propertyfile>
+    </target>
+    <target name="increase-minor-version" description="Increases the minor version">
+        <propertyfile file="build.properties">
+            <entry key="build.minor.number" type="int" operation="+" value="1" pattern="0"/>
+            <entry key="build.patch.number" type="int" operation="=" value="0" pattern="0"/>
+        </propertyfile>
+    </target>
+    <target name="increase-major-version" description="Increases the major version">
+        <propertyfile file="build.properties">
+            <entry key="build.major.number" type="int" operation="+" value="1" pattern="0"/>
+            <entry key="build.minor.number" type="int" operation="=" value="0" pattern="0"/>
+            <entry key="build.patch.number" type="int" operation="=" value="0" pattern="0"/>
+        </propertyfile>
+    </target>
+    <target name="use-filters" depends="increase-build-number" description="Replace all ant filters in ant-files">
+        <delete>
+            <fileset dir="">
+                <include name="expath-pkg.xml"/>
+            </fileset>
+        </delete>
+        <copy todir=".">
+            <fileset dir="">
+                <include name="expath-pkg.xml.ant"/>
+            </fileset>
+            <globmapper from="*.ant" to="*"/>
+            <filterset>
+                <filter token="VERSION" value="${project.version}"/>
+            </filterset>
+        </copy>
+    </target>
+    <target name="xar" depends="use-filters" description="Build a xar-package">
+        <mkdir dir="${build.dir}"/>
+        <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, **/*.ant"/>
+    </target>
+    <target name="release" description="Release the current version">
+        <zip basedir="." destfile="${release.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, **/*.ant"/>
+    </target>
+    <path id="classpath.core">
+        <fileset dir="${exist.dir}/lib/core">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${exist.dir}/exist.jar"/>
+        <pathelement path="${exist.dir}/exist-optional.jar"/>
+    </path>
+    <typedef resource="org/exist/ant/antlib.xml" uri="http://exist-db.org/ant">
+        <classpath refid="classpath.core"/>
+    </typedef>
+    <target name="deploy-local">
+        <echo message="Deploying app to local eXist-db."/>
+        <property file="deploy-local.properties"/>
+        <condition property="ediarum_app_exists">
+            <xdb:exist user="${deploy.user}" password="${deploy.password}" uri="${deploy.uri}"/>
+        </condition>
+        <xdb:remove if:set="ediarum_app_exists" uri="${deploy.uri}" user="${deploy.user}" password="${deploy.password}" collection="."/>
+
+        <!-- Generating zip files from the data -->
+		<!--
+        <zip destfile="data/pub.zip" basedir="data/pub/" excludes="dont*.*"/>
+        <zip destfile="data/doc.zip" basedir="data/doc/" excludes="dont*.*"/>
+		-->
+		<!--zip destfile="data.zip" basedir="data/" excludes="dont*.*"/-->
+        <xdb:store uri="${deploy.uri}" createcollection="true" createsubcollections="true" user="${deploy.user}" password="${deploy.password}" permissions="rwxr-xr-x">
+            <fileset dir=".">
+                <include name="**/*.xql"/>
+                <exclude name="temp/"/>
+            </fileset>
+        </xdb:store>
+        <xdb:store uri="${deploy.uri}" createcollection="true" createsubcollections="true" user="${deploy.user}" password="${deploy.password}">
+            <fileset dir=".">
+                <include name="**/*.*"/>
+                <exclude name="**/*.xql"/>
+                <exclude name="temp/"/>
+                <exclude name="build/"/>
+                <exclude name="release/"/>
+                <exclude name="modules/admin.xqm"/>
+                <exclude name="**/*.properties"/>
+                <exclude name="**/*.tmpl"/>
+                <exclude name="**/*.md"/>
+                <exclude name="*.xpr"/>
+                <exclude name="**/.gitignore"/>
+            </fileset>
+        </xdb:store>
+    <!--delete file="data.zip"/-->
+    </target>
+</project>

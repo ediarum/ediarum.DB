@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div>
+    <script type="text/javascript">
+$(document).ready(function() {
+    $('#modalNewPushSynchronisation').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var modal = $(this)
+        modal.find('input[name="synch-name"]').val(button.data('synch-name'))
+        modal.find('input[name="source-resource"]').val(button.data('source-resource'))
+        modal.find('input[name="target-server"]').val(button.data('target-server'))
+        modal.find('input[name="target-resource"]').val(button.data('target-resource'))
+        modal.find('input[name="target-user"]').val(button.data('target-user'))
+        modal.find('input[name="target-password"]').val(button.data('target-password'))
+    });
+    $('#modalNewPullSynchronisation').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var modal = $(this)
+        modal.find('input[name="synch-name"]').val(button.data('synch-name'))
+        modal.find('input[name="target-resource"]').val(button.data('target-resource'))
+        modal.find('input[name="target-group-name"]').val(button.data('target-group-name'))
+        modal.find('input[name="target-mode"]').val(button.data('target-mode'))
+        modal.find('input[name="source-server"]').val(button.data('source-server'))
+        modal.find('input[name="source-resource"]').val(button.data('source-resource'))
+        modal.find('input[name="source-user"]').val(button.data('source-user'))
+        modal.find('input[name="source-password"]').val(button.data('source-password'))
+    });
+    $('#pleaseWaitDialog').on('show.bs.modal', function (event) {
+        setTimeout(updateProgress, 100);
+    });
+});
+function updateProgress() {
+    $.ajax({
+        type: "POST",
+        url: "./../../modules/progress.xql",
+        data: "{}",
+        dataType: "json",
+        async: true,
+        success: function (obj) {
+            $("#progressbar").attr("aria-valuenow", obj.percentage);
+            $("#progressbar").attr("style", "width: "+obj.percentage+"%");
+            $("#progressbar").text(obj.message);
+            if (obj.percentage &lt;= 100) {
+                setTimeout(updateProgress, 100);
+            }
+        },
+        error: function(e) {
+            alert("error: "+e);
+        }
+    });
+};
+    </script>
+    <div class="modal" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>Processing...</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div id="progressbar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalNewPushSynchronisation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Push-Synchronisation</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="add-push-synchronisation"/>
+                    <input type="hidden" name="synch-type" value="push"/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="synch-name">Bezeichnung</label>
+                            <input type="text" class="form-control" placeholder="Name" name="synch-name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="source-resource">Quellen-Ordner</label>
+                            <input type="text" class="form-control" placeholder="/db/projects/example/data/collection" name="source-resource"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-server">Ziel-Server</label>
+                            <input type="text" class="form-control" placeholder="example.com:8080" name="target-server"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-resource">Ziel-Ordner</label>
+                            <input type="text" class="form-control" placeholder="/db/projects/example/data/collection" name="target-resource"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-user">Benutzername</label>
+                            <input type="text" class="form-control" placeholder="Name" name="target-user"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-password">Passwort</label>
+                            <input type="password" class="form-control" placeholder="Passwort" name="target-password"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Speichern</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+    <div class="modal fade" id="modalNewPullSynchronisation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Pull-Synchronisation</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="add-pull-synchronisation"/>
+                    <input type="hidden" name="synch-type" value="pull"/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="synch-name">Bezeichnung</label>
+                            <input type="text" class="form-control" placeholder="Name" name="synch-name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-resource">Ziel-Ordner</label>
+                            <input type="text" class="form-control" placeholder="/db/projects/example/data/collection" name="target-resource"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-group-name">Ziel-Gruppe</label>
+                            <input type="text" class="form-control" placeholder="usergroup" name="target-group-name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="target-mode">Ziel-Berechtigung</label>
+                            <input type="text" class="form-control" placeholder="rwxr-x---" name="target-mode"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="source-server">Quellen-Server (WebDAV)</label>
+                            <input type="text" class="form-control" placeholder="http://example.com:8080/exist/webdav" name="source-server"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="source-resource">Quellen-Ordner</label>
+                            <input type="text" class="form-control" placeholder="/db/projects/example/data/collection" name="source-resource"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="source-user">Benutzername</label>
+                            <input type="text" class="form-control" placeholder="Name" name="source-user"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="source-password">Passwort</label>
+                            <input type="password" class="form-control" placeholder="Passwort" name="source-password"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Speichern</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+</div>

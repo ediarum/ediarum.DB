@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div>
+    <script type="text/javascript">
+$(document).ready(function() {
+    $('#modalNewZoteroConnection').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var modal = $(this)
+        modal.find('input[name="connection-id"]').val(button.data('connection-id'))
+        modal.find('input[name="connection-name"]').val(button.data('connection-name'))
+        modal.find('input[name="group-id"]').val(button.data('group-id'))
+        modal.find('input[name="api-key"]').val(button.data('api-key'))
+        modal.find('input[name="style"]').val(button.data('style'))
+    });
+    $('#pleaseWaitDialog').on('show.bs.modal', function (event) {
+        setTimeout(updateProgress, 100);
+    });
+});
+function updateProgress() {
+    $.ajax({
+        type: "POST",
+        url: "./../../modules/progress.xql",
+        data: "{}",
+        dataType: "json",
+        async: true,
+        success: function (obj) {
+            $("#progressbar").attr("aria-valuenow", obj.percentage);
+            $("#progressbar").attr("style", "width: "+obj.percentage+"%");
+            $("#progressbar").text(obj.message);
+            if (obj.percentage &lt;= 100) {
+                setTimeout(updateProgress, 100);
+            }
+        },
+        error: function(e) {
+            alert("error: "+e);
+        }
+    });
+};
+    </script>
+    <div class="modal" id="pleaseWaitDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1>Processing...</h1>
+                </div>
+                <div class="modal-body">
+                    <div class="progress">
+                        <div id="progressbar" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalNewZoteroConnection" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Verbindung zu Zoterogruppe</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="add-zotero-connection"/>
+                    <input type="hidden" name="connection-id" value=""/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="connection-name">Bezeichnung</label>
+                            <input type="text" class="form-control" placeholder="Name" name="connection-name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="group-id">Gruppen-ID</label>
+                            <input type="text" class="form-control" placeholder="ID" name="group-id"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="api-key">API Schlüssel</label>
+                            <input type="password" class="form-control" placeholder="Key" name="api-key"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="style">Bibliographie-Stil</label>
+                            <input type="text" class="form-control" placeholder="apa" name="style"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Speichern</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+</div>

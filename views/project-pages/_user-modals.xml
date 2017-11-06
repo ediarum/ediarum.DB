@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div>
+    <script type="text/javascript">
+$(document).ready(function() {
+    $('#modalChangeUserPass').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var modal = $(this)
+        modal.find('input[name="user-name"]').val(button.data('user-name'))
+        $("#changeThisUserPass").text(button.data('user-name'));
+    });
+});
+    </script>
+    <div class="modal fade" id="modalDeleteUser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Löschen</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="delete-user"/>
+                    <div class="modal-body">
+                        <p>Möchten Sie folgende Ressource wirklich löschen?</p>
+                        <p id="removeResourceFormResourcePath"/>
+                        <input type="hidden" id="removeResourceFormCollection" name="target-collection"/>
+                        <input type="hidden" id="removeResourceFormResource" name="resource"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-danger" type="submit">Löschen</button>
+                    </div>
+                    <input type="hidden" name="user-name" value="{$u}"/>
+                    <button type="submit" class="btn btn-default navbar-btn">Löschen</button>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+    <div class="modal fade" id="modalChangeUserPass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content panel-default">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Ändern</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="change-user-pass"/>
+                    <div class="modal-body">
+                        <p>Passwort für folgenden User neu setzen:</p>
+                        <p id="changeThisUserPass"/>
+                        <div class="form-group">
+                            <label for="target-resource">Neues Passwort</label>
+                            <input type="password" class="form-control" placeholder="" name="password"/>
+                        </div>
+                    </div>
+                    <input type="hidden" name="user-name" value="{$u}"/>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Ändern</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+</div>

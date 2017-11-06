@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup>
+    <property name="datacopyDir" value="/db/apps/ediarum/data_copy"/>
+    <property name="projectDir" value="/db/projects"/>
+    <property name="ediarumDir" value="/apps/ediarum"/>
+    <property name="port" value="8080"/>
+    <property name="sslPort" value="8443"/>
+</setup>

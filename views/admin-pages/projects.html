@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div data-template="admin-pages:projects">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Projektverwaltung</h1>
+                <h2>Aktuelle Projekte</h2>
+                <div data-template="admin-pages:action-alert"/>
+                <div data-template="admin-pages:project-list"/>
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <span class="navbar-brand" for="zuname">Neues Projekt:</span>
+                        </div>
+                        <form class="navbar-form navbar-left" role="search" action="" method="post">
+                            <div class="form-group">
+                                <label for="project-name" class="sr-only">Projektname</label>
+                                <input type="text" class="form-control" placeholder="Projektname" name="project-name"/>
+                                <input type="hidden" name="action" value="new-project"/>
+                            </div>
+                            <button type="submit" class="btn btn-default">Anlegen!</button>
+                        </form>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>

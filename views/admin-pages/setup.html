@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div data-template="admin-pages:setup">
+        <div data-template="templates:include" data-template-path="views/admin-pages/_setup-modals.xml"/>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Setup</h1>
+                    <div data-template="admin-pages:action-alert"/>
+                    <h2>Projects Controller</h2>
+                    <div data-template="admin-pages:activate-projects-controller"/>
+                    <h2>Port-Einstellung</h2>
+                    <div data-template="admin-pages:setup-port-configuration"/>
+                    <h2>Passwörter</h2>
+                    <div class="navbar navbar-default">
+                        <div class="container-fluid">
+                            <div class="navbar-header">
+                                <span class="navbar-brand">admin</span>
+                            </div>
+                            <div class="navbar-collapse navbar-right">
+                                <a type="button" href="" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#modalChangePassword" data-username="admin">Ändern</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="navbar navbar-default">
+                        <div class="container-fluid">
+                            <div class="navbar-header">
+                                <span class="navbar-brand">exist-bot</span>
+                            </div>
+                            <div class="navbar-collapse navbar-right">
+                                <form action="" method="post">
+                                    <input type="hidden" name="action" value=""/>
+                                    <a type="button" href="" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#modalChangePassword" data-username="exist-bot">Ändern</a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="navbar navbar-default">
+                        <div class="container-fluid">
+                            <div class="navbar-header">
+                                <span class="navbar-brand">oxygen-bot</span>
+                            </div>
+                            <div class="navbar-collapse navbar-right">
+                                <form action="" method="post">
+                                    <input type="hidden" name="action" value=""/>
+                                    <a type="button" href="" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#modalChangePassword" data-username="oxygen-bot">Ändern</a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="navbar navbar-default">
+                        <div class="container-fluid">
+                            <div class="navbar-header">
+                                <span class="navbar-brand">website-user</span>
+                            </div>
+                            <div class="navbar-collapse navbar-right">
+                                <form action="" method="post">
+                                    <input type="hidden" name="action" value=""/>
+                                    <a type="button" href="" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#modalChangePassword" data-username="website-user">Ändern</a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

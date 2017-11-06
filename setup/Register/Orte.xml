@@ -1,0 +1,21 @@
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:telota="http://www.telota.de" telota:doctype="register">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title>Ortsregister</title>
+            </titleStmt>
+            <publicationStmt>
+                <p>Gehört zur ediarum-App für eXist.</p>
+            </publicationStmt>
+            <sourceDesc>
+                <p>Hybrid: consult project description and document history for details.</p>
+            </sourceDesc>
+        </fileDesc>
+    </teiHeader>
+    <text>
+        <body>
+            <listPlace>
+            </listPlace>
+        </body>
+    </text>
+</TEI>

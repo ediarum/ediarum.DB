@@ -1,0 +1,64 @@
+/* Application styles could go here */
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+ padding-top: 50px;
+ /* Margin bottom by footer height */
+  margin-bottom: 120px;
+}
+
+h2:before, h3:before {
+  display: block;
+  content: " ";
+  margin-top: -70px;
+  height: 70px;
+  visibility: hidden;
+}
+
+#navbar-brand, h1, h2, h3, .heading-blue {
+    color: #0088CC;
+}
+
+#existdb-logo {
+    background: url(../images/existdb_88_26.png) center left no-repeat; display: block; width: 88px; height: 26px; text-indent: -999em; outline: 0; margin: 10px 0;
+}
+
+.side-nav-fixed {
+    position: fixed;
+}
+
+.side-nav * {
+    padding: 0px;
+}
+
+.side-nav .nav-body ul li {
+   list-style: none;
+}
+
+.side-nav .nav-body>ul>li>a {
+   font-weight: bold;
+}
+
+#document.prettyprint {
+    margin-top: 5px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 120px;
+    color: white;
+    background:#444444;
+    padding-top:20px;
+    padding-bottom:20px;
+}
+
+h1 a:hover {
+    text-decoration: none;
+}

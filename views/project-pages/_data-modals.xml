@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div>
+    <div class="modal fade" id="modalNewResource" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Neue Datei anlegen</h4>
+                </div>
+                <form action="data.html" method="get">
+                    <input type="hidden" name="action" value="newResource"/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="collectionPath">Datei erstellen in</label>
+                            <input type="text" class="form-control" id="newResourceFormTargetCollection" placeholder="Ordnerpfad" name="target-collection"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="newCollection">Dateiname</label>
+                            <input type="text" class="form-control" id="newResourceFormResource" placeholder="Dateiname" name="resource"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Datei anlegen</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+    <div class="modal fade" id="modalNewCollection" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Neuen Ordner anlegen</h4>
+                </div>
+                <form action="data.html" method="get">
+                    <input type="hidden" name="action" value="newCollection"/>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="collectionPath">Ordner erstellen in</label>
+                            <input type="text" class="form-control" id="newCollectionFormTargetCollection" placeholder="Ordnerpfad" name="target-collection"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="newCollection">Neuer Ordner</label>
+                            <input type="text" class="form-control" id="newCollectionFormCollection" placeholder="Ordnername" name="collection"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-primary" type="submit">Ordner anlegen</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+    <div class="modal fade" id="modalDeleteResource" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Löschen</h4>
+                </div>
+                <form action="data.html" method="post">
+                    <input type="hidden" name="action" value="removeResource"/>
+                    <div class="modal-body">
+                        <p>Möchten Sie folgende Ressource wirklich löschen?</p>
+                        <p id="removeResourceFormResourcePath"/>
+                        <input type="hidden" id="removeResourceFormCollection" name="target-collection"/>
+                        <input type="hidden" id="removeResourceFormResource" name="resource"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-danger" type="submit">Löschen</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+</div>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <script type="text/javascript" src="$shared/resources/scripts/jquery/jquery-ui-1.8.custom.min.js"/>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            prettyPrint();
+            $( ".index li &gt; ul" ).hide();
+            $( "li .toggle" ).toggleClass("large small");
+            $( ".toggle" ).click(function() {
+                if ($(this).hasClass('large')) {
+                    $(this).nextAll("ul").hide();
+                } else if ($(this).hasClass('small')) {
+                   $(this).nextAll("ul").show();
+                }
+                $( this ).toggleClass("large small");
+//                sameHeader = "li.".concat($( this ).parent().attr('class'));
+//                if ($(this).hasClass('large')) {
+//                    $( this ).parent().nextUntil(sameHeader).hide();
+//                } else if ($(this).hasClass('small')) {
+//                    $( this ).parent().nextUntil(sameHeader).show();
+//                }
+//                $( this ).toggleClass("large small");
+            });
+                
+        });
+    </script>
+    <h1>Schemadokumentation
+        <div data-template="config:get-parameter" data-template-param="file"/>
+    </h1>
+    <div class="row-fluid">
+        <div class="span3">
+            <h3>Inhalt</h3>
+            <div data-template="config:schemadoku2index"/>
+        </div>
+        <div class="span9">
+            <div data-template="config:schemadoku2html"/>
+        </div>
+    </div>
+</div>

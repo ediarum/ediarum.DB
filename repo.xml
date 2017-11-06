@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta xmlns="http://exist-db.org/xquery/repo">
+    <description>Eine Arbeitsumgebung für wissenschaftliche Editionen</description>
+    <author>TELOTA</author>
+    <website>http://www.telota.de</website>
+    <status>alpha</status>
+    <license>GNU-LGPL</license>
+    <copyright>true</copyright>
+    <type>application</type>
+    <target>ediarum</target>
+    <prepare>pre-install.xql</prepare>
+    <finish>post-install.xql</finish>
+    <!--note>Installation Note</note-->
+</meta>
