@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://expath.org/ns/pkg" name="http://www.bbaw.de/telota/software/ediarum" abbrev="ediarum" version="3.0.0.317" spec="1.0">
+<package xmlns="http://expath.org/ns/pkg" name="http://www.bbaw.de/telota/software/ediarum" abbrev="ediarum" version="3.0.1.318" spec="1.0">
     <title>ediarum</title>
     <dependency package="http://exist-db.org/apps/shared"/>
     <xquery>

@@ -458,11 +458,13 @@ declare function local:create-new-project($p) {
 
         xmldb:create-collection(concat("/db/system/config", config:project-collection-path($p)),"web"),
         (:xdb:copy("/db/apps/ediarum/setup", "/db/system/config/db/data", "permissions.xconf"),:)
+        (:
         local:copy_file_to_system_config($p, concat($config:ediarum-db-path,"/setup"), "web", "permissions.xconf", "collection.xconf"),
         let $permission := doc("/db/system/config"||config:project-collection-path($p, "web")||"/collection.xconf")
         let $parameter := <parameter xmlns="http://exist-db.org/collection-config/1.0" name="group-name" value="website" />
         return
             update insert $parameter into $permission//*:triggers/*:trigger[@event="create"],
+        :)
 
         (: Die Indexfunktionalitäten werden vorbereitet. :)
         local:copy_file_to_project($p, $config:ediarum-db-path||"/setup", "oxygen", "ediarum.xql", "oxygen", "rwsr-x---")

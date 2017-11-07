@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changelog>
-    <change>
+    <change version="3.0.1" date="2017-11-07">
+        BUGFIX #9084: Remove trigger for web collection
+    </change>
+    <change version="3.0.0" date="2017-11-06">
         UPDATE: update documentation
         UPDATE: Fix bugs
         Clean code
