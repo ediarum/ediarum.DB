@@ -32,11 +32,13 @@ declare variable $config:app-root :=
     return
         substring-before($modulePath, "/modules");
 
-(: TODO: Deprecated. :)
-declare variable $config:data-root := $config:app-root || "/data";
+declare variable $config:data-col := "/data";
+declare variable $config:data-root := $config:app-root || $config:data-col;
 declare variable $config:ediarum-path := "/exist/apps/ediarum";
+declare variable $config:routines-col := "/routinen";
+declare variable $config:scheduler-col := $config:routines-col||"/scheduler";
 declare variable $config:ediarum-db-path := "/db/apps/ediarum";
-declare variable $config:ediarum-db-routinen-scheduler-path := $config:ediarum-db-path||"/routinen/scheduler";
+declare variable $config:ediarum-db-routinen-scheduler-path := $config:ediarum-db-path||$config:scheduler-col;
 declare variable $config:expath-descriptor := doc(concat($config:app-root, "/expath-pkg.xml"))/expath:package;
 declare variable $config:local-ediarum-dir := "ediarum";
 declare variable $config:projects-path := "/db/projects";
@@ -47,6 +49,12 @@ declare variable $config:zotero-base-url := "https://api.zotero.org";
 declare variable $config:ediarum-index-api-path := "/setup/";
 declare variable $config:project-index-api-path := "/oxygen/";
 declare variable $config:ediarum-index-api-file := "ediarum.xql";
+declare variable $config:user-group-suffix := "-nutzer";
+declare variable $config:ediarum-config-path := "/setup/setup.xml";
+declare variable $config:exist-conf-file := "conf.xml";
+declare variable $config:exist-controller-config-file := "/webapp/WEB-INF/controller-config.xml";
+declare variable $config:exist-jetty-config-file := "/tools/jetty/etc/jetty-http.xml";
+declare variable $config:exist-jetty-ssl-config-file := "/tools/jetty/etc/jetty-ssl.xml";
 declare variable $config:ediarum-indexes := [
         map {
             "id": "persons",
@@ -114,72 +122,22 @@ declare function functx:substring-after-last($arg as xs:string?, $delim as xs:st
 };
 
 declare function config:app-meta($node as node(), $model as map(*)) as element()* {
-    config:trash($node, $model),
     <meta xmlns="http://www.w3.org/1999/xhtml" name="description" content="{$config:repo-descriptor/repo:description/text()}"/>,
     for $author in $config:repo-descriptor/repo:author
-    return
-        <meta xmlns="http://www.w3.org/1999/xhtml" name="creator" content="{$author/text()}"/>
+        return <meta xmlns="http://www.w3.org/1999/xhtml" name="creator" content="{$author/text()}"/>
 };
 
 declare %templates:wrap function config:app-title($node as node(), $model as map(*)) as text() {
-    config:trash($node, $model),
     $config:expath-descriptor/expath:title/text()
 };
 
 declare %templates:wrap function config:app-version($node as node(), $model as map(*)) as xs:string {
-    config:trash($node, $model),
     $config:expath-descriptor/@version/string()
 };
 
 (: Zum Durchreichen von Parametern. :)
 declare function config:get-parameter($node as node(), $model as map(*), $param as text()) as xs:string* {
-    config:trash($node, $model),
-    let $output := request:get-parameter($param, '')
-    return
-        $output
-};
-
-(: Lädt einen Schemainhalt zur Anzeige. :)
-declare function config:schemadoku2index($node as node(), $model as map(*)) as node() {
-    config:trash($node, $model),
-    let $file:= request:get-parameter('file', '')
-    return
-    <ul class="index" style="list-style-type:none; margin: 0px;">
-        {config:createlist(doc(concat("/db/data/Schemadokumentation/",$file))/schemadoku, '')}
-    </ul>
-};
-
-(: Lädt ein Schema zur Anzeige. :)
-declare function config:schemadoku2html($node as node(), $model as map(*)) as node() {
-    config:trash($node, $model),
-    let $file:= request:get-parameter('file', '')
-    return
-    for $item in doc(concat("/db/data/Schemadokumentation/",$file))//(div|schema)
-    return
-        <div id="{$item/@xml:id}">
-            {if (equals($item/name(),'div'))
-            then <h2>{$item/@gliederung/data(.)}</h2>
-            else
-                (<h3>{$item/name}</h3>,
-                <p>{$item/beschreibung}</p>,
-                if ($item/definition)
-                then
-                    (for $beispiel in $item/beispiel
-                    let $beschreibung := $beispiel/@beschreibung/data(.)
-                    return
-                        (if ($beschreibung!='') then <p style="font-style:italic;margin:0px;margin-left:2em;">{$beispiel/@beschreibung/data(.)}</p> else (),
-                        <pre class="prettyprint">{ediarum:trim-whitespace($beispiel)}</pre>),
-                    <pre>
-                        {ediarum:trim-whitespace($item/definition/xpath)}
-                    </pre>,
-                    <pre>
-                        {ediarum:trim-whitespace($item/definition/rng)}
-                    </pre>,
-                    <p><i>Web-Darstellung:</i> {$item/web_darstellung}</p>,
-                    <p><i>Druck-Darstellung:</i> {$item/druck_darstellung}</p>)
-                else (),
-                <a href="#">nach oben</a>)}
-        </div>
+    request:get-parameter($param, '')
 };
 
 declare function config:copy($source-uri as xs:string, $target-uri as xs:string, $group as xs:string, $permissions as xs:string) as xs:boolean {
@@ -215,26 +173,6 @@ declare function config:create-collection ($new-collection as xs:string, $owner 
     )
 };
 
-(:
- : Generiert die Listenansicht.
- :)
-declare function config:createlist($node as node(), $nummer as xs:string) as node() {
-    for $item at $position in $node/(div|schema)
-    return
-        if (equals($item/name(),'div'))
-        then
-        <li>
-            <a href="#{$item/@xml:id}">{$item/@gliederung/data(.)}</a>
-            <span class="toggle large" style="cursor: pointer;"> ↕ </span>
-            <ul>{config:createlist($item, concat($nummer,$position,'.'))}
-            </ul>
-        </li>
-        else
-        <li>
-            <a href="#{$item/@xml:id}">{$item/name}</a>
-        </li>
-};
-
 declare function config:do-synchronisation($synch-name as xs:string, $synch-type as xs:string) as node() {
     config:do-synchronisation($synch-name, $synch-type, ediarum:get-current-project())
 };
@@ -242,7 +180,7 @@ declare function config:do-synchronisation($synch-name as xs:string, $synch-type
 declare function config:do-synchronisation($synch-name as xs:string, $synch-type as xs:string, $project-name as xs:string) as node() {
     if ($synch-type eq "push") then
         let $target := config:get-synchronisation-targets($project-name)//target[label=$synch-name][@type=$synch-type]
-        let $source-collection := if (starts-with(string($target/source-resource),"/db/projects/"||$project-name)) then (string($target/source-resource)) else ("/db/projects/"||$project-name||"/"||string($target/source-resource))
+        let $source-collection := if (starts-with(string($target/source-resource),$config:projects-path||"/"||$project-name)) then (string($target/source-resource)) else ($config:projects-path||"/"||$project-name||"/"||string($target/source-resource))
         let $target-user := string($target/target-user)
         let $target-password := string($target/target-password)
         let $target-server := string($target/target-server)
@@ -275,7 +213,7 @@ declare function config:do-synchronisation($synch-name as xs:string, $synch-type
             </result>
             (: Alternative Ansätze zur Dokumenation:
                 process:execute(("python","synch.py", $source-user, $source-pass, $source-server, $source-resource, $target-user, $target-pass, $target-server, $target-resource), $options)
-                config:synchronize-existdb-resources($source-server, $source-user, $source-pass, $source-resource, $target-server, $target-user, $target-pass, $target-resource)
+            config:synchronize-existdb-resources($source-server, $source-user, $source-pass, $source-resource, $target-server, $target-user, $target-pass, $target-resource)
             :)
     else if ($synch-type eq "pull") then
         let $target := config:get-synchronisation-targets($project-name)//target[label=$synch-name][@type=$synch-type]
@@ -293,7 +231,7 @@ declare function config:do-synchronisation($synch-name as xs:string, $synch-type
         let $source-collection := string($target/source-resource)
         let $target-group-name := if (exists(string($target/target-group-name))) then (string($target/target-group-name)) else (sm:id()//sm:group[1]//string())
         let $target-mode := if (exists(string($target/target-mode))) then (string($target/target-mode)) else ("rwxrwx---")
-        let $target-collection := if (starts-with(string($target/target-resource),"/db/projects/"||$project-name)) then (string($target/target-resource)) else ("/db/projects/"||$project-name||"/"||string($target/target-resource))
+        let $target-collection := if (starts-with(string($target/target-resource),$config:projects-path||"/"||$project-name)) then (string($target/target-resource)) else ($config:projects-path||"/"||$project-name||"/"||string($target/target-resource))
 
         let $response := config:synchronisation-pull-existdb-collections($source-server, $source-user, $source-password, $source-collection, $target-collection, $target-group-name, $target-mode)
         return
@@ -462,7 +400,7 @@ declare function config:get-collections-in-collection($collection as xs:string) 
 
 (: Returns the path of the config file :)
 declare function config:get-config-file($project-name as xs:string) as xs:string {
-    concat("/db/projects/",$project-name,"/config.xml")
+    $config:projects-path||"/"||$project-name||"/config.xml"
 };
 
 declare function config:get-current-index() as node()? {
@@ -489,6 +427,10 @@ declare function config:get-current-project() as xs:string? {
     session:get-attribute('current-project')
 };
 
+declare function config:get-current-user() as xs:string? {
+    sm:id()//sm:username/string()
+};
+
 declare function config:get-current-zotero-collection() as xs:string {
     let $project-name := config:get-current-project()
     let $connection-id := config:get-current-zotero-connection-id()
@@ -504,15 +446,19 @@ declare function config:get-current-zotero-connection-id() as xs:string? {
         $connection-id
 };
 
+declare function config:get-ediarum-db-path() as xs:string {
+    $config:ediarum-db-path
+};
+
 declare function config:get-data-collection ($project-name as xs:string) as xs:string {
-    $config:projects-path||"/"||$project-name||"/data"
+    $config:projects-path||"/"||$project-name||$config:data-col
 };
 
 declare function config:get-ediarum-index($project-name as xs:string, $ediarum-index-id as xs:string, $first-letter as xs:string?, $show-details as xs:string*) as node()? {
     if (not(config:is-ediarum-index-active($project-name, $ediarum-index-id))) then
         ()
     else
-    let $data-collection := '/db/projects/'||$project-name||'/data'
+    let $data-collection := $config:projects-path||"/"||$project-name||$config:data-col
     let $index-collection := $data-collection||'/Register'
     let $alphabet := tokenize('A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z', ',')
     let $letter :=
@@ -752,7 +698,7 @@ declare function config:get-ediarum-index-collection($ediarum-index-id as xs:str
 };
 
 declare function config:get-ediarum-routinen-scheduler() as xs:string* {
-    let $resources := xmldb:get-child-resources($config:ediarum-db-path||"/routinen/scheduler")
+    let $resources := xmldb:get-child-resources($config:ediarum-db-path||$config:scheduler-col)
     return
         (
             for $resource in $resources
@@ -776,7 +722,7 @@ declare function config:get-existdb-config() as node() {
 };
 
 declare function config:get-existdb-config-path() as xs:string {
-    system:get-exist-home()||"/conf.xml"
+    system:get-exist-home()||"/"||$config:exist-conf-file
 };
 
 (: Get the controller-config.xml from existdb as node. :)
@@ -787,7 +733,7 @@ declare function config:get-existdb-controller-config() as node() {
 };
 
 declare function config:get-existdb-controller-config-path() as xs:string {
-    system:get-exist-home()||"/webapp/WEB-INF/controller-config.xml"
+    system:get-exist-home()||$config:exist-controller-config-file
 };
 
 declare function config:get-existdb-jetty-config() as node() {
@@ -797,7 +743,11 @@ declare function config:get-existdb-jetty-config() as node() {
 };
 
 declare function config:get-existdb-jetty-config-path() as xs:string {
-    system:get-exist-home()||"/tools/jetty/etc/jetty.xml"
+    system:get-exist-home()||$config:exist-jetty-config-file
+};
+
+declare function config:get-existdb-jetty-ssl-config-path() as xs:string {
+    system:get-exist-home()||$config:exist-jetty-ssl-config-file
 };
 
 declare function config:get-index($project-name as xs:string, $index-id as xs:string) as node()* {
@@ -807,7 +757,11 @@ declare function config:get-index($project-name as xs:string, $index-id as xs:st
 };
 
 declare function config:get-indexes($project-name as xs:string) as node()* {
-    doc(config:get-config-file($project-name))//config/indexes
+    try {
+        doc(config:get-config-file($project-name))//config/indexes
+    } catch * {
+        <emptry/>
+    }
 };
 
 declare function config:get-log-file($name as xs:string) as node() {
@@ -815,14 +769,14 @@ declare function config:get-log-file($name as xs:string) as node() {
 };
 
 declare function config:get-projects() as xs:string* {
-    for $project in xmldb:get-child-collections("/db/projects")
+    for $project in xmldb:get-child-collections($config:projects-path)
     order by $project
     return
         $project
 };
 
 declare function config:get-project-routinen-scheduler() as xs:string* {
-    let $resources := xmldb:get-child-resources( $config:projects-path||"/"||config:get-current-project()||"/exist/routinen/scheduler")
+    let $resources := xmldb:get-child-resources( $config:projects-path||"/"||config:get-current-project()||"/exist"||$config:scheduler-col)
     return
         (
             for $resource in $resources
@@ -864,7 +818,7 @@ declare function config:get-scheduler-jobs($project-name as xs:string) as node()
 };
 
 declare function config:get-setup() as node() {
-    doc("../setup/setup.xml")
+    doc(".."||$config:ediarum-config-path)
 };
 
 declare function config:get-setup-property($property as xs:string) as xs:string {
@@ -880,7 +834,7 @@ declare function config:get-zotero-collection($project-name as xs:string, $conne
     let $connection := config:get-zotero-connection-by-id($project-name, $connection-id)
     let $connection-name := $connection/label/string()
     return
-        "/db/projects/"||$project-name||"/external_data/zotero/"||$connection-name
+        $config:projects-path||"/"||$project-name||"/external_data/zotero/"||$connection-name
 };
 
 declare function config:get-zotero-collection-items($project-name as xs:string, $connection-id as xs:string, $collection-id as xs:string, $get-all as xs:boolean) as node()* {
@@ -968,7 +922,12 @@ declare function config:get-project-index($project-name as xs:string, $project-i
         let $namespace-uri := substring-after($ns, ':')
         return
             util:declare-namespace($prefix, $namespace-uri)
-    let $items := util:eval('collection(config:get-data-collection($project-name)||"/"||$index-collection)//'||$data-node)
+    let $col := 
+        if (ends-with($index-collection, '.xml')) then 
+            doc(config:get-data-collection($project-name)||"/"||$index-collection)
+        else
+            collection(config:get-data-collection($project-name)||"/"||$index-collection)
+    let $items := util:eval-inline($col ,'.//'||$data-node)
     let $list :=
         element {QName("http://www.tei-c.org/ns/1.0",'list')} {
             attribute type {"index"},
@@ -1065,7 +1024,7 @@ declare function config:manage-session($action as xs:string) as xs:anyAtomicType
     if ($action eq 'logout') then (
         session:clear(),
         session:invalidate(),
-        response:redirect-to(xs:anyURI("/exist/apps/ediarum/index.html"))
+        response:redirect-to(xs:anyURI(ediarum:get-ediarum-dir(request:get-context-path())||"/index.html"))
         )
     else if ($action eq 'login') then (
         session:create(),
@@ -1074,12 +1033,12 @@ declare function config:manage-session($action as xs:string) as xs:anyAtomicType
         return (
             xmldb:login('db',$logname,$logpass),
             let $primary-group := sm:get-user-primary-group($logname)
-            let $primary-project := substring-before($primary-group,"-nutzer")
+            let $primary-project := substring-before($primary-group, $config:user-group-suffix)
             let $uri := if ($primary-group eq "dba") then (
                 request:get-uri()
                 )
                 else (
-                    xs:anyURI(concat("/exist/apps/ediarum/projects/", $primary-project, "/data.html"))
+                    xs:anyURI(ediarum:get-ediarum-dir(request:get-context-path())||"/projects/"||$primary-project||"/data.html")
                 )
             return
             response:redirect-to($uri)(: request:get-uri()) :)
@@ -1126,24 +1085,24 @@ declare function config:mkcol-in-project($project-name as xs:string, $rel-collec
 
 (: Returns the path of the project :)
 declare function config:project-collection-path($project-name as xs:string) as xs:string {
-    concat("/db/projects/",$project-name)
+    $config:projects-path||"/"||$project-name
 };
 
 (: Returns the path of a collection in a project.  :)
 declare function config:project-collection-path($project_name as xs:string, $rel_collection_path as xs:string) as xs:string {
     if ($rel_collection_path eq "") then
-        concat("/db/projects/",$project_name)
+        $config:projects-path||"/"||$project_name
     else
-        concat("/db/projects/",$project_name,"/",$rel_collection_path)
+        $config:projects-path||"/"||$project_name||"/"||$rel_collection_path
 };
 
 (: Returns the uri of a collection in a project.  :)
 declare function config:project-resource-uri($project_name as xs:string, $rel_collection_path as xs:string) as xs:anyURI {
-    xs:anyURI(concat("/db/projects/",$project_name,"/",$rel_collection_path))
+    xs:anyURI($config:projects-path||"/"||$project_name||"/"||$rel_collection_path)
 };
 
 declare function config:project-user-group($project-name as xs:string) as xs:string {
-    concat($project-name,"-nutzer")
+    concat($project-name, $config:user-group-suffix)
 };
 
 (:~
@@ -1162,30 +1121,6 @@ declare function config:resolve($relPath as xs:string) as node() {
         doc(concat($config:app-root, "/", $relPath))
     else
         doc(concat("file://", $config:app-root, "/", $relPath))
-};
-
-declare function config:deprecated-send-authHTTP($url as xs:anyURI, $username as xs:string, $password as xs:string, $request-type as xs:string, $content as item(), $content-type as xs:string) as item() {
-    let $persist := false()
-    (: let $length := string-length($content) :)
-    (:            <header name="Content-Type" value="{$content-type}"/>:)
-    (:            <header name="Content-Length" value="{$length}"/>:)
-    let $credentials := concat($username, ':', $password)
-    let $encode-credentials := util:base64-encode($credentials)
-    let $auth := concat('Basic ', $encode-credentials)
-    let $request-headers :=
-        <headers>
-            <header name="User-Agent" value="http auth"/>
-            <header name="Authorization" value="{$auth}"/>
-            <header name="Content-type" value="{$content-type}; charset=utf-8"/>
-        </headers>
-    return
-    if ($request-type='PUT') then
-        httpclient:put($url, $content, $persist, $request-headers)
-    else if ($request-type='GET') then
-        httpclient:get($url, $persist, $request-headers)
-    else if ($request-type='DELETE') then
-        httpclient:delete($url, $persist, $request-headers)
-    else ()
 };
 
 declare function config:set-current-index($index-id as xs:string) as item()* {
@@ -1246,7 +1181,6 @@ declare function config:synchronisation-pull-existdb-collections($source-server 
     (: Get all filenames :)
     let $get-filenames-response := config:synchronisation-get-filenames-in-existdb-collection($source-server, $source-username, $source-password, $source-collection)
     return (
-        config:trash($remove, $create-collection),
         if ($get-filenames-response("error")) then (
             $get-filenames-response
              )
@@ -1304,7 +1238,6 @@ declare function config:synchronisation-pull-existdb-collections($source-server 
                 </httpclient:body>
             </httpclient:response> :)
                     return (
-                        config:trash($create-collection),
                         if (xs:string($doc)) then (
                             "Gespeicherte Datei: " || xmldb:store($resource-collection, $target-resource, $doc, $mimetype) || sm:chown(xs:anyURI($resource-collection||"/"||$target-resource), config:get-exist-bot-name()) || sm:chgrp(xs:anyURI($resource-collection||"/"||$target-resource), $target-group-name) || sm:chmod(xs:anyURI($resource-collection||"/"||$target-resource), $target-mode), <br/>
                             )
@@ -1320,7 +1253,7 @@ declare function config:synchronisation-pull-existdb-collections($source-server 
 (: Writes the resources in the source to the target existdb server :)
 declare function config:synchronisation-push-existdb-collections($source-collection as xs:string, $target-server as xs:string, $target-username as xs:string, $target-password as xs:string, $target-collection as xs:string) as map(*) {
     (: Delete files :)
-    let $path := xs:anyURI(concat('http://', $target-server, '/exist/rest', $target-collection))
+    let $path := xs:anyURI(concat($target-server, $target-collection))
     let $delete-collection := ediarum:send-authHTTP($path, $target-username, $target-password, 'DELETE', (), ())
     let $collection-deleted := map {
         "error" : index-of((200,204), xs:integer($delete-collection/@statusCode/string()))=(),
@@ -1340,7 +1273,7 @@ declare function config:synchronisation-push-existdb-collections($source-collect
             let $update-progressbar := try { session:set-attribute("progress-message", string($progress-number)||" / "||$count) } catch * { () }
             (: Erstelle den Pfad. :)
             let $target-resource := $target-collection || substring-after($resource, $source-collection)
-            let $path := xs:anyURI(concat('http://', $target-server, '/exist/rest', $target-resource))
+            let $path := xs:anyURI(concat($target-server, $target-resource))
             (: Synchronisation von allen Dateitypen: Fehler evtl. bei Sonderzeichen. :)
             let $content-type := xmldb:get-mime-type($resource)
             let $content := if (util:binary-doc-available($resource)) then (
@@ -1355,10 +1288,17 @@ declare function config:synchronisation-push-existdb-collections($source-collect
                                 "application/xml":)
             (: Speichere die Datei :)
             let $response := ediarum:send-authHTTP($path, $target-username, $target-password, 'PUT', $content, $content-type)
+            let $error := xs:integer($response/@statusCode/string())!=201
+            let $result := if($error) then (
+                                "Fehler (" || $response/@statusCode/string() || ") bei: " || $resource
+                            ) else (
+                                $resource || " gespeichert als " || $target-resource (:), <br/>, serialize($response):)
+                            )
+
             return
                 map {
-                    "error" : xs:integer($response/@statusCode/string())!=201,
-                    "result" : ($resource || " gespeichert als " || $target-resource (:), <br/>, serialize($response):))
+                    "error" : $error,
+                    "result" : $result
                 }
     return
         map {
@@ -1391,7 +1331,7 @@ declare function config:synchronize-zotero-connection-collections($project-name 
     let $collection-xml :=
         <collections>
             {
-                for $i in config:loop-to($block-count)
+                for $i in (1 to $block-count)
                 return
                 try {
                     let $parameters := "limit="||$limit||"&amp;start="||string(number($i)*number($limit))
@@ -1575,8 +1515,8 @@ declare function config:transform-map-to-xml($map as map()) as item()* {
 };
 
 declare function config:transform-array-to-xml($map as array(*)) as item()* {
-    element item {
-        array:for-each($map, function($value){
+    array:for-each($map, function($value){
+        element item {
             if (empty($value)) then
                 ""
             else if ($value instance of xs:string) then
@@ -1589,25 +1529,15 @@ declare function config:transform-array-to-xml($map as array(*)) as item()* {
                 config:transform-array-to-xml($value)
             else
                 config:transform-map-to-xml($value)
-        })
-    }
-};
-
-(: Remove xlinter messages for unused variables :)
-declare function config:trash($items) as empty() {
-    ()
-};
-
-(: Remove xlinter messages for unused variables :)
-declare function config:trash($item1, $item2) as empty() {
-    ()
+        }
+    })
 };
 
 declare function config:unset-current-project() as xs:string? {
     session:remove-attribute('current-project')
 };
 
-declare function config:update-file($resource as xs:string, $contents as item()) as empty() {
+declare function config:update-file($resource as xs:string, $contents as item()) as empty-sequence() {
     let $collection-uri := config:substring-beforelast($resource, "/")
     let $resource-name := config:substring-afterlast($resource, "/")
     let $file := xmldb:store($collection-uri, $resource-name, $contents)
@@ -1643,62 +1573,7 @@ declare function config:update-zotero-connection-in-blocks($project-name as xs:s
         )
 };
 
-(:~
- : Zeigt die verfügbaren Schemata an.
- :)
-declare function config:zeige-schemata((:$node as node(), $model as map(*):)) {
-    if (xmldb:collection-available("/db/data/Schemadokumentation"))
-    then
-        for $file in collection("/db/data/Schemadokumentation")
-        let $title :=  ediarum:substring-afterlast(base-uri($file),'Schemadokumentation/')
-        order by $title descending
-        return
-        <li>
-            <a href="schema.html?file={$title}">{$title}</a>
-        </li>
-    else ()
-};
-
-
-declare function local:loop-monad-to-sequence($monad, $prefix) {
-let $abc := "0123456789"
-let $substr := substring($abc, 0, $monad+1)
-let $seq :=
-    for $ch in string-to-codepoints($substr)
-    return
-        $prefix||codepoints-to-string($ch)
-return
-    $seq
-};
-
-declare function local:loop-decade-to-sequence($decade, $monad) {
-let $mon := floor( $monad mod 10 )
-let $one :=
-        (for $d in $decade
-        return
-            local:loop-monad-to-sequence(10, $d)
-        ,
-        local:loop-monad-to-sequence($mon, number(($decade)[last()])+1)
-        )
-return
-    $one
-};
-
-declare function config:loop-to($int) {
-    let $dec := floor ( $int div 10 )
-    return
-        if ($dec > 0) then (
-            let $seq :=
-                config:loop-to(floor ( $int div 10 ) )
-            return
-            local:loop-decade-to-sequence($seq, $int)
-            )
-        else (
-            local:loop-monad-to-sequence($int, "")
-            )
-};
-
-(: TODO: Object orientierter Ansatz :)
+(: config.xml - Object orientierter Ansatz :)
 declare function config:get-parameter($name as xs:string) as xs:string {
     let $parameter := ./parameter[@name eq $name]
     let $value := $parameter/@value/string()

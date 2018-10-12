@@ -4,8 +4,23 @@ module namespace project-pages="http://www.bbaw.de/telota/software/ediarum-app/p
 import module namespace config="http://www.bbaw.de/telota/software/ediarum/config";
 declare namespace functx = "http://www.functx.com";
 
+declare function functx:escape-for-regex($arg as xs:string?) as xs:string {
+   replace($arg, '(\.|\[|\]|\\|\||\-|\^|\$|\?|\*|\+|\{|\}|\(|\))','\\$1')
+};
+
 declare function functx:is-a-number($value as xs:anyAtomicType?) as xs:boolean {
     string(number($value)) != 'NaN'
+};
+
+declare function functx:substring-before-last($arg as xs:string?, $delim as xs:string) as xs:string {
+    if (matches($arg, functx:escape-for-regex($delim))) then
+        replace($arg,concat('^(.*)', functx:escape-for-regex($delim),'.*'),'$1')
+    else
+        ''
+};
+
+declare function functx:substring-after-last($arg as xs:string?, $delim as xs:string) as xs:string {
+    replace ($arg,concat('^.*',functx:escape-for-regex($delim)),'')
 };
 
 declare function project-pages:action-alert($node as node(), $model as map(*)) as node()? {
@@ -39,15 +54,15 @@ declare function project-pages:add-new-scheduler-job($node as node(), $model as 
     </nav>
 };
 
-declare function project-pages:data($node as node(), $model as map(*)) as empty() {
-    if (index-of(xmldb:get-user-groups(xmldb:get-current-user()), "dba")>0 or
-        index-of(xmldb:get-user-groups(xmldb:get-current-user()), config:project-user-group(config:get-current-project()))>0
-    ) then (
+declare function project-pages:data($node as node(), $model as map(*)) as empty-sequence() {
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
         let $action := request:get-parameter('action','')
         let $target-collection := request:get-parameter('target-collection','')
         let $collection := request:get-parameter('collection','')
         let $resource := request:get-parameter('resource','')
-        let $target-collection-uri := concat("/db/projects/", config:get-current-project(), "/data/", $target-collection)
+        let $target-collection-uri := $config:projects-path||"/"||config:get-current-project()||$config:data-col||"/"||$target-collection
         return
         if ($action eq 'removeResource') then (
             if ($resource eq '') then (
@@ -77,6 +92,21 @@ declare function project-pages:data($node as node(), $model as map(*)) as empty(
         )
     else (
     )
+};
+
+declare function project-pages:development($node as node(), $model as map(*)) as map(*) {
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
+        let $action := request:get-parameter('action','')
+        let $project := config:get-current-project()
+        let $result := ()
+        return
+            map { "result" := $result }
+        )
+    else (
+        map {}
+        )
 };
 
 declare function project-pages:get-current-project($node as node(), $model as map(*)) as xs:string? {
@@ -122,7 +152,7 @@ declare function project-pages:get-scheduler-routinen-parameter($node as node(),
             return
                 " '"|| $xquery ||"' : "|| $params
             ,for $xquery in $project-xqueries
-            let $params := local:get-xquery-external-parameter( $config:projects-path||"/"||config:get-current-project()||"/exist/routinen/scheduler/"||$xquery||".xql")
+            let $params := local:get-xquery-external-parameter( $config:projects-path||"/"||config:get-current-project()||"/exist"||$config:scheduler-col||"/"||$xquery||".xql")
             return
                 " '"|| $xquery ||"' : "|| $params
             )
@@ -132,9 +162,9 @@ declare function project-pages:get-scheduler-routinen-parameter($node as node(),
 };
 
 declare function project-pages:index-items($node as node(), $model as map(*)) as map(*) {
-    if (index-of(xmldb:get-user-groups(xmldb:get-current-user()), "dba")>0 or
-        index-of(xmldb:get-user-groups(xmldb:get-current-user()), config:project-user-group(config:get-current-project()))>0
-    ) then (
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
         let $action := request:get-parameter('action','')
         let $project := config:get-current-project()
         let $index-id := config:get-current-index-id()
@@ -179,9 +209,9 @@ declare function project-pages:index-items($node as node(), $model as map(*)) as
 };
 
 declare function project-pages:indexes($node as node(), $model as map(*)) as map(*) {
-    if (index-of(xmldb:get-user-groups(xmldb:get-current-user()), "dba")>0 or
-        index-of(xmldb:get-user-groups(xmldb:get-current-user()), config:project-user-group(config:get-current-project()))>0
-    ) then (
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
         let $action := request:get-parameter('action','')
         let $project := config:get-current-project()
         let $index-id := request:get-parameter('index-id','')
@@ -220,6 +250,33 @@ declare function project-pages:indexes($node as node(), $model as map(*)) as map
         )
 };
 
+declare function project-pages:insert-build-properties-table($node as node(), $model as map(*)) as node()* {
+    let $file := "/db/apps/ediarum/setup/development/build.properties"
+    let $resource := util:binary-to-string(util:binary-doc($file))
+    let $lines := tokenize($resource, "\n")
+    let $rows :=
+        for $line in $lines
+        return
+            if (contains($line, "=")) then (
+                let $variable := normalize-space(substring-before($line, "="))
+                let $description := normalize-space(substring-after($line, "="))
+                return
+                    <tr>
+                        <td>{$variable}</td>
+                        <td>{$description}</td>
+                    </tr>
+            ) else ()
+    let $table :=
+        <table class="table table-hover">
+            <row>
+                <th>Variable</th>
+                <th>Description</th>
+            </row>
+            { $rows }
+        </table>
+    return $table
+};
+
 declare function project-pages:list-ediarum-indexes($node as node(), $model as map(*)) as node()* {
     let $project-name := config:get-current-project()
     for $ediarum-index-id in config:get-ediarum-index-ids()
@@ -238,7 +295,7 @@ declare function project-pages:list-ediarum-indexes($node as node(), $model as m
                     <div class="navbar-form navbar-right">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">API-Links <span class="caret"></span>
-                            </button>,
+                            </button>
                             <ul class="dropdown-menu">
                                 <li><a href="{substring-before(request:get-url(), request:get-context-path())||request:get-context-path()||"/rest"}/db/projects/{$project-name}/oxygen/ediarum.xql?index={$ediarum-index-id}" target="_blank">GET</a></li>
                             </ul>
@@ -553,9 +610,9 @@ declare function project-pages:refresh-index-api($node as node(), $model as map(
 };
 
 declare function project-pages:scheduler($node as node(), $model as map(*)) as map(*) {
-    if (index-of(xmldb:get-user-groups(xmldb:get-current-user()), "dba")>0 or
-        index-of(xmldb:get-user-groups(xmldb:get-current-user()), config:project-user-group(config:get-current-project()))>0
-    ) then (
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
         let $action := request:get-parameter('action','')
         let $scheduler-job-id := request:get-parameter('scheduler-job-id','')
         let $parameter-names :=
@@ -649,9 +706,9 @@ declare function project-pages:select-box-with-zotero-connection-collections($no
 };
 
 declare function project-pages:synchronisation($node as node(), $model as map(*)) as map(*) {
-    if (index-of(xmldb:get-user-groups(xmldb:get-current-user()), "dba")>0 or
-        index-of(xmldb:get-user-groups(xmldb:get-current-user()), config:project-user-group(config:get-current-project()))>0
-    ) then (
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
         let $action := request:get-parameter('action','')
         let $project := config:get-current-project()
         let $synch-name := request:get-parameter('synch-name','')
@@ -691,9 +748,9 @@ declare function project-pages:synchronisation($node as node(), $model as map(*)
 };
 
 declare function project-pages:user($node as node(), $model as map(*)) as map(*) {
-    if (index-of(xmldb:get-user-groups(xmldb:get-current-user()), "dba")>0 or
-        index-of(xmldb:get-user-groups(xmldb:get-current-user()), config:project-user-group(config:get-current-project()))>0
-    ) then (
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
         let $action := request:get-parameter('action','')
         let $user-name := request:get-parameter('user-name','')
         let $password := request:get-parameter('password','')
@@ -739,7 +796,8 @@ declare function project-pages:user-list($node as node(), $model as map(*)) as n
                         <!--input type="hidden" name="project" value="{$project}"/-->
                         <input type="hidden" name="action" value="delete-user"/>
                         <input type="hidden" name="user-name" value="{$u}"/>
-                        {(: Projektmanager dürfen nicht gelöscht werden. :)
+                        {
+                        (: Projektmanager dürfen nicht gelöscht werden. :)
                         if (index-of(sm:get-group-managers(config:project-user-group(config:get-current-project())), $u)>0) then ()
                         else
                             <button type="submit" class="btn btn-default">Löschen</button>
@@ -758,9 +816,9 @@ declare function project-pages:user-list($node as node(), $model as map(*)) as n
 };
 
 declare function project-pages:zotero($node as node(), $model as map(*)) as map(*) {
-    if (index-of(xmldb:get-user-groups(xmldb:get-current-user()), "dba")>0 or
-        index-of(xmldb:get-user-groups(xmldb:get-current-user()), config:project-user-group(config:get-current-project()))>0
-    ) then (
+    let  $cuser := config:get-current-user()
+    let $cproject := config:project-user-group(config:get-current-project())
+    return if (sm:is-dba($cuser) or ($cproject = sm:get-user-groups($cuser))) then (
         let $action := request:get-parameter('action','')
         let $project := config:get-current-project()
         let $connection-id := request:get-parameter('connection-id','')
@@ -788,6 +846,12 @@ declare function project-pages:zotero($node as node(), $model as map(*)) as map(
     else (
         map {}
         )
+};
+
+declare function project-pages:zip-development-collection($node as node(), $model as map(*)) as map(*) {
+    local:zip-development-collection(),
+    let $map := map {}
+    return $map
 };
 
 declare function local:activate-ediarum-index($index-id as xs:string, $index-type as xs:string, $ediarum-index-structure as xs:string) as node() {
@@ -1269,10 +1333,47 @@ declare function local:remove-zotero-connection($connection-id as xs:string) {
     </result>
 };
 
+declare function local:replace-in-file($file-input as xs:string, $pattern as xs:string, $replacement as xs:string) as xs:string {
+    local:replace-in-new-file($file-input, $file-input, $pattern, $replacement)
+};
+
+declare function local:replace-in-new-file($file-input as xs:string, $file-output as xs:string, $pattern as xs:string, $replacement as xs:string) as xs:string {
+    let $input := util:binary-to-string(util:binary-doc($file-input))
+    let $contents := replace($input, $pattern, $replacement)
+    return
+        xmldb:store-as-binary(functx:substring-before-last($file-output, "/"), functx:substring-after-last($file-output, "/"), $contents)
+};
+
 declare function local:synch-zotero-connection-in-blocks($connection-id as xs:string) as node() {
     config:synchronize-zotero-connection-in-blocks(config:get-current-project(), $connection-id, 0, true())
 };
 
 declare function local:update-zotero-connection-in-blocks($connection-id as xs:string) as node() {
     config:update-zotero-connection-in-blocks(config:get-current-project(), $connection-id)
+};
+
+declare function local:zip-development-collection() as empty-sequence() {
+    let $project-name := config:get-current-project()
+    let $ediarum-path := config:get-ediarum-db-path()
+    let $source-collection-uri := $ediarum-path||"/setup/development"
+    let $zip-collection := $ediarum-path||"/setup/zip"
+    let $add-zip-col := xmldb:create-collection($ediarum-path||"/setup", "zip")
+    let $copy-development-collection := xmldb:copy($source-collection-uri, $zip-collection)
+    let $rename-files := (
+        xmldb:rename($zip-collection||"/development", "gitignore.txt", ".gitignore"),
+        xmldb:rename($zip-collection||"/development", "PROJECTNAME_dev.xpr", $project-name||"_dev.xpr"),
+        xmldb:rename($zip-collection||"/development/oxygen_addon", "PROJECTNAME_addon.xpr", $project-name||"_addon.xpr")
+    )
+    let $change-contents := (
+        local:replace-in-file($ediarum-path||"/setup/zip/development/build.properties", "%PROJECTNAME%", $project-name),
+        local:replace-in-file($ediarum-path||"/setup/zip/development/"||$project-name||"_dev.xpr", "%PROJECTNAME%", $project-name),
+        local:replace-in-file($ediarum-path||"/setup/zip/development/oxygen_addon/"||$project-name||"_addon.xpr", "%PROJECTNAME%", $project-name),
+        local:replace-in-file($ediarum-path||"/setup/zip/development/exist/webconfig.xml.LOCAL", "%PROJECTNAME%", $project-name),
+        local:replace-in-file($ediarum-path||"/setup/zip/development/exist/webconfig.xml.DEV", "%PROJECTNAME%", $project-name),
+        local:replace-in-file($ediarum-path||"/setup/zip/development/exist/webconfig.xml.EDIT", "%PROJECTNAME%", $project-name)
+    )
+    let $zip := compression:zip(xs:anyURI("/db/apps/ediarum/setup/zip/development"), true(), "/db/apps/ediarum/setup/zip")
+    let $store := xmldb:store(xs:anyURI("/db/apps/ediarum/setup"), "development.zip", $zip)
+    let $remove-zip-collection := xmldb:remove($zip-collection)
+    return ()
 };

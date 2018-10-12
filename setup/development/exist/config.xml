@@ -1,0 +1,20 @@
+<config>
+    <scheduler>
+    </scheduler>
+    <synchronisation>
+    </synchronisation>
+    <indexes>
+        <index id="persons" type="ediarum">
+            <label>Personenregister</label>
+            <parameter name="status" value="active"/>
+        </index>
+        <index id="places" type="ediarum">
+            <label>Ortsregister</label>
+            <parameter name="status" value="active"/>
+        </index>
+        <index id="bibliography" type="ediarum">
+            <label>Werkregister</label>
+            <parameter name="status" value="active"/>
+        </index>
+    </indexes>
+</config>

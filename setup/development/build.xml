@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns:xdb="http://exist-db.org/ant" xmlns:if="ant:if" name="ediarum-framework">
+    <property name="build.dir" value="build" />
+    <property file="project.properties"/>
+    <property file="build.properties"/>
+    <property name="project.path" value="/db/projects/${project.name}"/>
+    <property name="project.version" value="v${project.version.major}-${project.version.minor}-${project.version.patch}-${project.version.build}"/>
+
+    <target name="increase-build" description="Increase build number">
+        <propertyfile file="build.properties">
+            <entry key="project.version.build" type="int" operation="+" value="1" pattern="0"/>
+        </propertyfile>
+    </target>
+
+    <target name="increase-patch" description="Increase patch number">
+        <propertyfile file="build.properties">
+            <entry key="project.version.patch" type="int" operation="+" value="1" pattern="0"/>
+        </propertyfile>
+    </target>
+
+    <target name="increase-minor" description="Increase minor number">
+        <propertyfile file="build.properties">
+            <entry key="project.version.minor" type="int" operation="+" value="1" pattern="0"/>
+            <entry key="project.version.patch" type="int" value="0" pattern="0"/>
+        </propertyfile>
+    </target>
+
+    <target name="increase-major" description="Increase major number">
+        <propertyfile file="build.properties">
+            <entry key="project.version.major" type="int" operation="+" value="1" pattern="0"/>
+            <entry key="project.version.minor" type="int" value="0" pattern="0"/>
+            <entry key="project.version.patch" type="int" value="0" pattern="0"/>
+        </propertyfile>
+    </target>
+
+    <target name="show-version" description="Echo the version number">
+        <echo message="Version: ${project.version}"/>
+    </target>
+
+    <target name="zip-addon" depends="show-version, increase-build" description="Build an oxygen addon package">
+        <echo message="zip-addon: Starting.."/>
+        <mkdir dir="${build.dir}" />
+        <zip destfile="${build.dir}/${project.name}_${project.version}.zip">
+            <zipfileset dir="oxygen_addon" prefix="${project.name}"/>
+        </zip>
+        <echo message="zip-addon: zip file written to ${build.dir}/${project.name}_${project.version}.zip" />
+    </target>
+
+<!--
+    <target name="use-filters" description="Replace all ant filters in ant-files">
+        <delete>
+            <fileset dir="">
+                <include name="web/expath-pkg.xml"/>
+            </fileset>
+        </delete>
+        <copy todir=".">
+            <fileset dir="">
+                <include name="web/expath-pkg.xml.ant"/>
+            </fileset>
+            <globmapper from="*.ant" to="*"/>
+            <filterset>
+                <filter token="VERSION" value="${project.version}"/>
+            </filterset>
+        </copy>
+    </target>
+-->
+
+<!--
+    <target name="xar" depends="use-filters, increase-build" description="Build a xar-package of WEB">
+        <mkdir dir="${build.dir}"/>
+        <zip basedir="web" destfile="${build.dir}/${project.name}.WEB-${project.version}.xar"/>
+    </target>
+-->
+
+    <path id="classpath.core">
+        <fileset dir="${exist.dir}/lib/core">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${exist.dir}/exist.jar"/>
+        <pathelement path="${exist.dir}/exist-optional.jar"/>
+    </path>
+    <typedef resource="org/exist/ant/antlib.xml" uri="http://exist-db.org/ant">
+        <classpath refid="classpath.core"/>
+    </typedef>
+
+    <target name="expand-xconf-files">
+<!--
+        <copy todir="exist_system" overwrite="true">
+                <fileset dir="exist_system">
+                    <include name="*.xconf"/>
+                </fileset>
+                <filtermapper>
+                    <replacestring from="_" to="/"/>
+                </filtermapper>
+            </copy>
+-->
+    </target>
+
+    <target name="deploy-local" depends="expand-xconf-files" description="Deploy project to local eXist-db">
+        <echo message="deploy-local: Deploying project resources to local eXist-db."/>
+        <!-- Es wird nichts gelöscht ! -->
+        <copy todir="exist" overwrite="true">
+            <fileset dir="exist">
+                <include name="**/*.LOCAL"/>
+            </fileset>
+            <globmapper from="*.LOCAL" to="*"/>
+        </copy>
+        <echo message="Connecting with ${server.local.uri}"/>
+<!--
+        <echo message="Delete project system collections"/>
+        <xdb:remove uri="${server.local.uri}/db/system/config${project.path}" collection="." ssl="false" user="${server.local.user}" password="${server.local.password}"/>
+-->
+        <echo message="Upload files to project"/>
+        <xdb:store uri="${server.local.uri}${project.path}" ssl="false" createcollection="true" createsubcollections="true" user="${server.local.user}" password="${server.local.password}" permissions="rwxrwx---">
+            <fileset dir="exist">
+                <include name="**/*.*"/>
+                <exclude name="data/"/>
+                <exclude name="temp/"/>
+                <exclude name="**/.gitignore"/>
+                <exclude name="**/*.LOCAL"/>
+                <exclude name="**/*.DEV"/>
+                <exclude name="**/*.EDIT"/>
+                <exclude name="**/*.PUBLIC"/>
+            </fileset>
+        </xdb:store>
+<!--
+        <echo message="Upload files to system collections"/>
+        <xdb:store uri="${server.local.uri}/db/system/config${project.path}" ssl="false" createcollection="true" createsubcollections="true" user="${server.local.user}" password="${server.local.password}" permissions="rwxrwx- - -">
+            <fileset dir="exist_system">
+                <include name="**/*.*"/>
+                <exclude name="*.xconf"/>
+            </fileset>
+        </xdb:store>
+-->
+        <echo message="Refresh project"/>
+        <xdb:xquery uri="${server.local.uri}${project.path}" user="${server.local.user}" queryFile="exist/exist/routinen/refresh_project.xql" password="${server.local.password}" outputproperty="result">
+            <variable name="project-path" value="${project.path}"/>
+        </xdb:xquery>
+         <echo message="${result}"/>
+    </target>
+
+    <target name="deploy-dev" depends="expand-xconf-files" description="Deploy exist-app to DEV eXist-db">
+        <echo message="Deploying exist-app to DEV eXist-db."/>
+        <!-- Es wird nichts gelöscht ! -->
+        <copy todir="exist" overwrite="true">
+            <fileset dir="exist">
+                <include name="**/*.DEV"/>
+            </fileset>
+            <globmapper from="*.DEV" to="*"/>
+        </copy>
+        <echo message="Connecting with ${server.dev.uri}"/>
+<!--
+        <echo message="Delete project system collections"/>
+        <xdb:remove uri="${server.dev.uri}/db/system/config${project.path}" collection="." ssl="true" user="${server.dev.user}" password="${server.dev.password}"/>
+-->
+        <echo message="Upload files to project"/>
+        <xdb:store uri="${server.dev.uri}${project.path}" ssl="true" createcollection="true" createsubcollections="true" user="${server.dev.user}" password="${server.dev.password}" permissions="rwxrwx---">
+            <fileset dir="exist">
+                <include name="**/*.*"/>
+                <exclude name="data/"/>
+                <exclude name="temp/"/>
+                <exclude name="**/.gitignore"/>
+                <exclude name="**/*.LOCAL"/>
+                <exclude name="**/*.DEV"/>
+                <exclude name="**/*.EDIT"/>
+                <exclude name="**/*.PUBLIC"/>
+            </fileset>
+        </xdb:store>
+<!--
+        <echo message="Upload files to system collections"/>
+        <xdb:store uri="${server.dev.uri}/db/system/config${project.path}" ssl="true" createcollection="true" createsubcollections="true" user="${server.dev.user}" password="${server.dev.password}" permissions="rwxrwx- - -">
+            <fileset dir="exist_system">
+                <include name="**/*.*"/>
+                <exclude name="*.xconf"/>
+            </fileset>
+        </xdb:store>
+-->
+        <echo message="Refresh project"/>
+        <xdb:xquery uri="${server.dev.uri}${project.path}" user="${server.dev.user}" queryFile="exist/exist/routinen/refresh_project.xql" password="${server.dev.password}" outputproperty="result">
+            <variable name="project-path" value="${project.path}"/>
+        </xdb:xquery>
+         <echo message="${result}"/>
+    </target>
+
+    <target name="deploy-edit" depends="expand-xconf-files" description="Deploy exist-app to EDIT eXist-db">
+        <echo message="deploy-edit: Deploying exist-app to EDIT eXist-db."/>
+        <!-- Es wird nichts gelöscht ! -->
+        <echo message="deploy-edit: Insert *.EDIT files" />
+        <copy todir="exist"  overwrite="true">
+            <fileset dir="exist">
+                <include name="**/*.EDIT"/>
+            </fileset>
+            <globmapper from="*.EDIT" to="*"/>
+        </copy>
+        <echo message="deploy-edit: Connecting with ${server.edit.uri}"/>
+<!--
+        <echo message="Delete project system collections"/>
+        <xdb:remove uri="${server.edit.uri}/db/system/config${project.path}" collection="." ssl="true" user="${server.edit.user}" password="${server.edit.password}"/>
+-->
+        <echo message="deploy-edit: Upload files to project"/>
+        <xdb:store uri="${server.edit.uri}${project.path}" ssl="true" createcollection="true" createsubcollections="true" user="${server.edit.user}" password="${server.edit.password}" permissions="rwxrwx---">
+            <fileset dir="exist">
+                <include name="**/*.*"/>
+                <exclude name="data/"/>
+                <exclude name="temp/"/>
+                <exclude name="**/.gitignore"/>
+                <exclude name="**/*.LOCAL"/>
+                <exclude name="**/*.DEV"/>
+                <exclude name="**/*.EDIT"/>
+                <exclude name="**/*.PUBLIC"/>
+            </fileset>
+        </xdb:store>
+<!--
+        <echo message="Upload files to system collections"/>
+        <xdb:store uri="${server.edit.uri}/db/system/config${project.path}" ssl="true" createcollection="true" createsubcollections="true" user="${server.edit.user}" password="${server.edit.password}" permissions="rwxrwx- - -">
+            <fileset dir="exist_system">
+                <include name="**/*.*"/>
+                <exclude name="*.xconf"/>
+            </fileset>
+        </xdb:store>
+-->
+        <echo message="deploy-edit: Refresh project"/>
+        <xdb:xquery uri="${server.edit.uri}${project.path}" user="${server.edit.user}" queryFile="exist/exist/routinen/refresh_project.xql" password="${server.edit.password}" outputproperty="result">
+            <variable name="project-path" value="${project.path}"/>
+        </xdb:xquery>
+        <echo message="deploy-edit: ${result}"/>
+        <echo message="deploy-edit: exist-app to EDIT deployed" />
+    </target>
+
+    <target name="update-update-xml" description="Update the update.xml with current version number">
+        <delete>
+            <fileset dir="">
+                <include name="update.xml"/>
+            </fileset>
+        </delete>
+        <copy todir=".">
+            <fileset dir="">
+                <include name="update.xml.ant"/>
+            </fileset>
+            <globmapper from="*.ant" to="*"/>
+            <filterset>
+                <filter token="ZIPFILE" value="${project.name}_${project.version}.zip"/>
+                <filter token="VERSION" value="${project.version.major}.${project.version.minor}.${project.version.patch}"/>
+                <filter token="PROJECTNAME" value="${project.name}"/>
+            </filterset>
+        </copy>
+    </target>
+
+    <target name="publish-addon" depends="update-update-xml" description="Publish current addon">
+        <input message="Please enter password:" addproperty="ssh.pass">
+            <handler type="secure"/>
+        </input>
+        <echo message="publish-addon: Upload zip file" />
+        <scp file="${build.dir}/${project.name}_${project.version}.zip" todir="${ssh.username}@${ssh.uploadpath}" password="${ssh.pass}" trust="yes"/>
+        <echo message="publish-addon: Upload update.xml" />
+        <scp file="update.xml" todir="${ssh.username}@${ssh.uploadpath}" password="${ssh.pass}" trust="yes"/>
+    </target>
+
+    <target name="publish-all" description="Build zip, publish addon and deploy to EDIT">
+        <echo message="publish-all: Build zip" />
+        <antcall target="zip-addon" />
+        <echo message="publish-all: Publish-addon" />
+        <antcall target="publish-addon" />
+        <echo message="publish-all: Deploy to EDIT" />
+        <antcall target="deploy-edit" />
+        <echo message="publish-all: Publishing finished" />
+    </target>
+
+</project>

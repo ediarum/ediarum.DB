@@ -1,30 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xdb="http://exist-db.org/ant" xmlns:if="ant:if" default="xar" name="ediarum">
-    <property name="project.app" value="ediarum"/>
+<project xmlns:xdb="http://exist-db.org/ant" xmlns:if="ant:if" default="xar" name="ediarum.db">
+    <property name="project.app" value="ediarum.db"/>
     <property name="build.dir" value="build"/>
     <property name="archive.dir" value="temp"/>
     <property name="release.dir" value="release"/>
+    <property file="project.properties"/>
     <property file="build.properties"/>
     <property name="project.version" value="${build.major.number}.${build.minor.number}.${build.patch.number}.${build.build.number}"/>
+
+    <path id="classpath.core">
+        <fileset dir="${exist.dir}/lib/core">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${exist.dir}/exist.jar"/>
+        <pathelement path="${exist.dir}/exist-optional.jar"/>
+    </path>
+    <typedef resource="org/exist/ant/antlib.xml" uri="http://exist-db.org/ant">
+        <classpath refid="classpath.core"/>
+    </typedef>
+
     <target name="show-version" description="Shows the current version number">
         <echo>Current build number:${project.version}</echo>
     </target>
+
     <target name="increase-build-number">
         <propertyfile file="build.properties">
             <entry key="build.build.number" type="int" operation="+" value="1" pattern="0"/>
         </propertyfile>
     </target>
+
     <target name="increase-patch-number" description="Increases the patch number">
         <propertyfile file="build.properties">
             <entry key="build.patch.number" type="int" operation="+" value="1" pattern="0"/>
         </propertyfile>
     </target>
+
     <target name="increase-minor-version" description="Increases the minor version">
         <propertyfile file="build.properties">
             <entry key="build.minor.number" type="int" operation="+" value="1" pattern="0"/>
             <entry key="build.patch.number" type="int" operation="=" value="0" pattern="0"/>
         </propertyfile>
     </target>
+
     <target name="increase-major-version" description="Increases the major version">
         <propertyfile file="build.properties">
             <entry key="build.major.number" type="int" operation="+" value="1" pattern="0"/>
@@ -32,6 +49,7 @@
             <entry key="build.patch.number" type="int" operation="=" value="0" pattern="0"/>
         </propertyfile>
     </target>
+
     <target name="use-filters" depends="increase-build-number" description="Replace all ant filters in ant-files">
         <delete>
             <fileset dir="">
@@ -48,23 +66,21 @@
             </filterset>
         </copy>
     </target>
-    <target name="xar" depends="use-filters" description="Build a xar-package">
+
+    <target name="xar" description="Build a xar-package">
         <mkdir dir="${build.dir}"/>
-        <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, **/*.ant"/>
+        <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
     </target>
+
+    <target name="xar-build" depends="use-filters" description="Build a xar-package and increase build number">
+        <mkdir dir="${build.dir}"/>
+        <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
+    </target>
+
     <target name="release" description="Release the current version">
-        <zip basedir="." destfile="${release.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, **/*.ant"/>
+        <zip basedir="." destfile="${release.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
     </target>
-    <path id="classpath.core">
-        <fileset dir="${exist.dir}/lib/core">
-            <include name="*.jar"/>
-        </fileset>
-        <pathelement path="${exist.dir}/exist.jar"/>
-        <pathelement path="${exist.dir}/exist-optional.jar"/>
-    </path>
-    <typedef resource="org/exist/ant/antlib.xml" uri="http://exist-db.org/ant">
-        <classpath refid="classpath.core"/>
-    </typedef>
+
     <target name="deploy-local">
         <echo message="Deploying app to local eXist-db."/>
         <property file="deploy-local.properties"/>
@@ -102,4 +118,71 @@
         </xdb:store>
     <!--delete file="data.zip"/-->
     </target>
+
+    <target name="copy-files-to-docu" description="Copy the .md files to the documention.">
+        <copy todir="${docu.dir}" overwrite="true">
+            <fileset dir="">
+                <include name="**/*.md"/>
+            </fileset>
+            <packagemapper from="*" to="*"/>
+        </copy>
+    </target>
+
+    <scriptdef name="package-links" language="javascript">
+        <element name="fileset" type="fileset"/>
+        <![CDATA[
+            filesets = elements.get("fileset");
+            for (i = 0; i < filesets.size(); ++i) {
+                //project.log("fileset " + i + " basedir = " + filesets.get(i).getDir(project));
+                // Get the files (array) of that fileset
+                fs = filesets.get(i)
+                ds = fs.getDirectoryScanner(project);
+                srcFiles = ds.getIncludedFiles();
+                // iterate over that array
+                for (i = 0; i < srcFiles.length; i++) {
+                    // get the values via Java API
+                    var basedir  = fs.getDir(project);
+                    var filename = srcFiles[i];
+                    var file = new java.io.File(basedir, filename);
+                    var fileTemp = new java.io.File(basedir, filename+'.temp');
+                    var filenameWithoutExtr = filename.substring(0, filename.lastIndexOf('.'))
+                    var currentDir = filenameWithoutExtr.substring(0, filenameWithoutExtr.lastIndexOf('.')+1)
+                    //project.log(currentDir)
+                    //var size = file.length();
+                    //project.log(filename + ": " + size + " byte");
+                    fr = new java.io.FileReader(file);
+                    br = new java.io.BufferedReader(fr);
+                    fw = new java.io.FileWriter(fileTemp);
+                    bw = new java.io.BufferedWriter(fw);
+                    line = null;
+                    while((line=br.readLine()) != null) {
+                        pattern = java.util.regex.Pattern.compile("(\\[[^]]*\\])\\(([^:)]*)\\)");
+                        matcher = pattern.matcher(line);
+                        var sb = new java.lang.StringBuffer();
+                        // check all occurance
+                        while (matcher.find()) {
+                            matcher.appendReplacement(sb, matcher.group(1)+"("+currentDir+matcher.group(2).replaceAll("/",".")+")");
+                        }
+                        matcher.appendTail(sb);
+                        line = sb.toString();
+                        bw.write(line);
+                        bw.write("\n");
+                    }
+                    bw.close();
+                    br.close();
+                    file.delete();
+                    fileTemp.renameTo(file);
+                }
+            }
+        ]]>
+    </scriptdef>
+
+<target depends="copy-files-to-docu" name="make-docu">
+  <package-links>
+      <fileset dir="${docu.dir}">
+          <include name="*.md"/>
+      </fileset>
+  </package-links>
+</target>
+
 </project>

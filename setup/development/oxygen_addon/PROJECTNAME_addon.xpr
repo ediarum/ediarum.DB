@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="18.0">
+    <meta>
+        <filters directoryPatterns="" filePatterns="" positiveFilePatterns="" showHiddenFiles="false"/>
+        <options>
+            <serialized version="18.0" xml:space="preserve">
+                <serializableOrderedMap>
+                    <entry>
+                        <String>autocheck.addons.enable</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>binary.file.patterns</String>
+                        <String>*.ttf,*.eot,*.woff*,*.otf,*.webm,*.pdf,*.doc,*.eps,*.exe,*.dll,.DS_Store,Thumbs.db,*.icns,*.so,*.sys,*.avi,*.swf,*.fla,*.mp3,*.m4a,*.mpa,*.mp4,*.mpg,*.mpeg,*.wmv,*.qt,*.vob,*.wav,*.flv,*.class,*.chm,*.epub,*.mobi,*.zip,*.jar,*.docx,*.dotx,*.dotm,*.ods,*.odp,*.odt,*.ott,*.rar,*.tar,*.tar.gz,*.o,*.a,*.ai,*.gif,*.jpg,*.jpeg,*.png,*.bmp,*.tif,*.tiff,*.html</String>
+                    </entry>
+                    <entry>
+                        <String>document.types</String>
+                        <documentTypeDescriptor-array/>
+                    </entry>
+                    <entry>
+                        <String>extensions.update.sites</String>
+                        <String-array>
+                            <String>http://telota.bbaw.de/ediarum/edit/oxygen/update.xml</String>
+                        </String-array>
+                    </entry>
+                    <entry>
+                        <String>key.custom.editor.variables.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>key.editor.document.type.association.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>key.extensions.update.site.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>key.external.tools.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>key.file.types.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>key.perspectives.layout.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>perspectives.layout.info</String>
+                        <perspectivesInfo>
+                            <field name="useFixedLayout">
+                                <Boolean>true</Boolean>
+                            </field>
+                            <field name="predefinedLayout">
+                                <Boolean>false</Boolean>
+                            </field>
+                            <field name="predefinedLayoutName">
+                                <String>Advanced</String>
+                            </field>
+                            <field name="specifiedLayoutPath">
+                                <String>${pd}/cagb.layout</String>
+                            </field>
+                        </perspectivesInfo>
+                    </entry>
+                    <entry>
+                        <String>user.defined.editor.variables</String>
+                        <userEditorVariable-array>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_image_directory}</String>
+                                </field>
+                                <field name="value">
+                                    <String>Zeichnungen</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String></String>
+                                </field>
+                            </userEditorVariable>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_index_bibl}</String>
+                                </field>
+                                <field name="value">
+                                    <String>/oxygen/ediarum.xql?index=bibliography</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String></String>
+                                </field>
+                            </userEditorVariable>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_index_person}</String>
+                                </field>
+                                <field name="value">
+                                    <String>/oxygen/ediarum.xql?index=persons</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String></String>
+                                </field>
+                            </userEditorVariable>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_index_place}</String>
+                                </field>
+                                <field name="value">
+                                    <String>/oxygen/ediarum.xql?index=places</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String></String>
+                                </field>
+                            </userEditorVariable>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_project_domain}</String>
+                                </field>
+                                <field name="value">
+                                    <String>https://oxygen-bot:oxygen-bot@localhost:8080/exist</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String>Domain incl. credentials</String>
+                                </field>
+                            </userEditorVariable>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_project_name}</String>
+                                </field>
+                                <field name="value">
+                                    <String>$PROJECTNAME%</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String></String>
+                                </field>
+                            </userEditorVariable>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_project_rest_path}</String>
+                                </field>
+                                <field name="value">
+                                    <String>/exist/rest/db/projects/</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String></String>
+                                </field>
+                            </userEditorVariable>
+                            <userEditorVariable>
+                                <field name="name">
+                                    <String>${ediarum_manual_url}</String>
+                                </field>
+                                <field name="value">
+                                    <String>http://telota.bbaw.de/ediarum/edit/manual/</String>
+                                </field>
+                                <field name="shortDescription">
+                                    <String>URL zum Handbuch</String>
+                                </field>
+                            </userEditorVariable>
+                        </userEditorVariable-array>
+                    </entry>
+                    <entry>
+                        <String>validation.scenarios</String>
+                        <validationScenario-array/>
+                    </entry>
+                </serializableOrderedMap>
+            </serialized>
+        </options>
+    </meta>
+    <projectTree name="%PORJECTNAME%_addon.xpr"/>
+</project>

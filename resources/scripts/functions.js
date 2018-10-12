@@ -55,7 +55,7 @@ function data_xql(rootName, root) {
                             //$("#executeButton").show();
                         } else {
                             //$("#executeButton").hide();
-                            $("#downloadButton > a").attr("href","./../../modules/download.xql?file="+node.data.key+"/"+node.data.title);//"/exist/rest"+node.data.key+'/'+node.data.title);
+                            $("#downloadButton > a").attr("href","./../../modules/download.xql?file="+node.data.key+"/"+node.data.title);
                             $("#downloadButton > a").attr("download",node.data.title);
                             $("#downloadButton").attr("class","enabled");
                         }

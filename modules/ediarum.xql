@@ -62,14 +62,6 @@ declare function ediarum:bot-login($uri as xs:string) {
   xdb:login($uri, ediarum:get-bot-name(), ediarum:get-bot-pass())
 };
 
-(: TODO: Evtl. überflüssig. Wird für Registertrigger evtl. genutzt. :)
-declare function ediarum:bot-store-file($targetDir as xs:string, $fileName as xs:string, $file as item(), $permissions as xs:string) {
-  let $login := ediarum:bot-login($targetDir)
-  return
-    xdb:store($targetDir, $fileName, $file),
-  sm:chmod(xs:anyURI(concat($targetDir,'/',$fileName)),$permissions)
-};
-
 declare function ediarum:get-project-from-path($uri as xs:string) {
     if (starts-with($uri, $ediarum:project_dir))
     then

@@ -1,22 +1,19 @@
-ediarum.DB: Setup und erweiterte Einrichtung
-============================================
+# ediarum.DB: Setup und advanced configuration
 
-### Wiederherstellung
+## Database restoring
 
-Ist die Datenbank korrupt oder soll sie auf null zurückgesetzt werden, d.h. alle Daten,
-Benutzerkonten (inkl. des *admin*) und installierte Apps gelöscht werden,
-reicht es nach dem Stoppen der Datenbank den separaten Daten-Ordner auf dem Server zu löschen.
-Mit einem erneuten Starten der Datenbank erhält man eine leere Datenbank
-und kann dort wieder neue Apps installieren oder Daten einspielen. Zuerst sollte man
-allerdings das *admin*-Passwort neu setzen.
+If the database is corrupt or should be reset, i.e. all data,
+user accounts (incl. the *admin*) and installed apps can be deleted,
+it is sufficient to stop exist-db and delete the separate data folder on the host.
+You'll get an empty database on restart where you can re-install apps or re-import data.
+It is strongly recommended to set a new admin password first.
 
-### Scheduler
+## Scheduler
 
-In der Datei `conf.xml` im eXist-Installationsordner können
-verschiedene Einstellungen verändert werden. Unter `<scheduler>` können wiederkehrende Routinen eingerichtet
-werden, (s.a. [Scheduler Module](https://exist-db.org/exist/apps/doc/scheduler.xml) in der eXist-Dokumentation). Dazu muss
-dort die Zeile `<module uri="http://exist-db.org/xquery/scheduler" class="org.exist.xquery.modules.scheduler.SchedulerModule" />` entkommentiert sein.
-Die Einstellungen für ein vierstündliches inkrementelles Backup mit täglichem Vollbackup sehen etwa so aus:
+You can change various settings in the `conf.xml`, which is located in the eXist installation directory. Recurring routines can be set up under `<scheduler>`.
+(see also [Scheduler Module](https://exist-db.org/exist/apps/doc/scheduler.xml) in the eXist documentation).
+To do this, uncomment the line `<modules uri="http://exist-db.org/xquery/scheduler" class="org.exist.xquery.modules.scheduler.SchedulerModule" />`.
+The settings for a four-hour incremental backup with daily full backup look something like this:
 
     <job type="system" name="backup"
         class="org.exist.storage.ConsistencyCheckTask"
@@ -28,7 +25,7 @@ Die Einstellungen für ein vierstündliches inkrementelles Backup mit täglichem
             <parameter name="max" value="6"/>
     </job>
 
-Die Einrichtung eines Scheduler-Jobs zur Ausführung eines in der Datenbank liegenden  xQuerys sieht etwa folgendermaßen aus (dabei können Parameter übergeben werden, die im XQuery als externe Variablen eingelesen werden):
+The setup of a scheduler job to execute an XQuery in the database looks like this (parameters can be passed which are read in as external variables in XQuery):
 
     <job type="user" name="validation"
         xquery="/db/path/to/xquery.xql"
@@ -37,135 +34,80 @@ Die Einrichtung eines Scheduler-Jobs zur Ausführung eines in der Datenbank lieg
             <parameter name="password" value="pass"/>
     </job>
 
-### Port-Konfiguration
+## Port configuration
 
-Um den Port der Datenbank zu verändern (s. a. [Port-Konflikte](https://exist-db.org/exist/apps/doc/troubleshooting.xml#port-conflicts)),
-muss in der Datei `tools/jetty/etc/jetty.xml` im eXist-Installationsordner in der Zeile
+To change the port of the database (see [Port conflicts](https://exist-db.org/exist/apps/doc/troubleshooting.xml#port-conflicts)),
+edit `tools/jetty/etc/jetty.xml` in the eXist installation folder. Search for line
 
     <Set name="port"><SystemProperty name="jetty.port" default="8080"/></Set>
 
-die Portnummer 8080 auf die gewünschte Portnummer eingestellt werden. Der Port 8443 für sichere Verbindungen kann in der gleichen Datei in den beiden Zeilen
+and reset the port number. The port 8443 for secure connections can be set in the same file by editing the two lines
 
     <Set name="confidentialPort"><SystemProperty name="jetty.port.ssl" default="8443"/></Set>
 
     <Set name="Port"><SystemProperty name="jetty.port.ssl" default="8443"/></Set>
 
-in den gewünschten Port geändert werden.
+## Collections and permissions
 
-### Ordnerstruktur und Berechtigungen
+To ensure that the database is only accessible for logged in users, the authorisations of the individual
+resources must be set correctly. eXist also allows reading permissions for guests
+which is explicitly not desired here, especially for the project collections and the `data` directory there.
 
-Damit die Datenbank nur für angemeldete Benutzer zugänglich ist, müssen die Berechtigungen der einzelnen
-Dateien korrekt gesetzt sein. Die Standard-Einstellung von eXist sieht einen Lesezugriff auch für
-Gäste vor, was hier aber insbesondere für die Projektverzeichnisse und das dortige `data`-Verzeichnis explizit nicht gewünscht ist.
+Access is only desired for registered users, so with respect to the [authorization scheme](https://exist-db.org/exist/apps/doc/security.xml#permissions).
+of eXist there should be `-rwxrwx--- (group: PROJECT users)` permissions for all resources in the `/db/projects/PROJECT/data` collection.
+The collection `data` and subcollections should be created with the permission `crwxrwx--- (owner: admin, group:PROJECT-user)`.
+New users in the project are created with the `umask: 0007`, whereby files created by them automatically get the permission `rwxrwx---`.
 
-Gewünscht ist ein Zugriff nur für angemeldete Benutzer, d.h. nach dem [Berechtigungsschema](https://exist-db.org/exist/apps/doc/security.xml#permissions)
-von eXist `-rwxrwx--- (group: PROJECT-nutzer)` für alle Dateien im Ordner `/db/projects/PROJECT/data`.
-Die Ordner `data`, `data/Dokumente`
-und `data/Register` werden mit der Berechtigung `crwxrwx--- (owner: admin, group:PROJECT-nutzer)` erstellt.
-Neue Benutzer im Projekt werden mit der `umask: 0007` angelegt, wodurch von ihnen angelegte Dateien automatisch die Berechtigung `rwxrwx---` bekommen.
+When creating a new project, the project is created in the collection `/db/projects/PROJECTNAME`. The following collection structure is created:
 
-Beim Anlegen eines neuen Projektes wird das Projekt im Verzeichnis `/db/projects/PROJECTNAME` erstellt. Dabei wird darunter folgende Ordnerstruktur angelegt:
+* `data`: Contains the research data. The necessary register resources are stored in the `data/Register` collection.
+* `druck` (print): Necessary resources can be stored here to start the printing process on the server.
+* `exist`: Contains the routines (`exist/routines`) that can be executed by the database.
+* `oxygen`: Contains the interfaces which are necessary for Oxygen XML Author to access the database. Especially for reading the current registers.
+* `web`: Necessary resources (XQuery scripts, CSS, etc.) for a web presentation can be stored here.
 
-* `data`: Enthält die Forschungsdaten. Im Ordner `data/Register` werden die notwendigen Registerdateien gespeichert.
-* `druck`: Hier können die notwendigen Dateien gespeichert werden, um den Druckvorgang auf dem Server anzustoßen.
-* `exist`: Enthält die Routinen (`exist/routinen`), die von der Datenbank angesteuert werden können.
-* `oxygen`: Enthält die Schnittstellen, die für den Zugriff von Oxygen notwendig sind. Insbesondere für das Auslesen der aktuellen Register.
-* `web`: Hier können die notwendigen Dateien (xQuery-Skripte, CSS, etc.) für eine Webpräsentationen gespeichert werden.
+The following table gives an overview of the permissions in the collections of an ediarum project:
 
-Folgende Tabelle gibt einen Überblick über die Berechtigungen in den Ordnern eines ediarum-Projektes:
+| Directory / User Group     | /data | /exist | /oxygen | /website | Describtion |
+| -------------------------- | ----- | ------ | ------- | -------- | ------------ |
+| admin                      | yes   | yes    | yes     | yes      | admininistrator with all permissions |
+| PROJECT-user               | yes   |        |         |          | user in an ediarum project |
+| exist-bot                  | yes   | yes    | yes     | yes      | executes the routines |
+| oxygen-bot                 |       |        | yes     |          | for oXygen in global options and CSS, reads the register APIs. |
+| website-user               |       |        |         | yes      | has access to website and print directory |
 
-<table>
-    <tr>
-        <th><font size="2">
-            <div align="right">Verzeichnis</div>
-            <div>———————————</div>
-            <div>Nutzergruppe</div>
-            </font>
-        </th>
-        <th>/data</th>
-        <th>/exist</th>
-        <th>/oxygen</th>
-        <th>/website</th>
-        <th>Beschreibung</th>
-    </tr>
-    <tr>
-        <td>admin</td>
-        <td>X</td>
-        <td>X</td>
-        <td>X</td>
-        <td>X</td>
-        <td>Administrator mit allen Berechtigungen.</td>
-    </tr>
-    <tr>
-        <td>PROJECT-nutzer</td>
-        <td>X</td>
-        <td/>
-        <td/>
-        <td/>
-        <td>Nutzer in einem ediarum-Projekt</td>
-    </tr>
-    <tr>
-        <td>exist-bot</td>
-        <td>X</td>
-        <td>X</td>
-        <td>X</td>
-        <td>X</td>
-        <td>Führt die Routinen aus.</td>
-    </tr>
-    <tr>
-        <td>oxygen-bot</td>
-        <td/>
-        <td/>
-        <td>X</td>
-        <td/>
-        <td>Für Oxygen in globale Optionen und im CSS, liest aus data_copy.</td>
-    </tr>
-    <tr>
-        <td>website-user</td>
-        <td/>
-        <td/>
-        <td/>
-        <td>X</td>
-        <td>Mit Zugriff auf die Webseite und den Druck.</td>
-    </tr>
-</table>
+## Routines and XQuery scripts
 
-### Routinen und xQuery-Skripte
-
-xQuery-Skripte werden im Ordner `exist/routinen` abgelegt. Zu Testzwecken existiert dort schon das Skript `test.xql`, an welchem Ausgaben und Funktionen
-ausprobiert werden können. Im **ediarum**-Modul, welches in der Datei `modules/ediarum.xql` in der **ediarum.DB**-App
-liegt, sind zentrale Funktionen vordefiniert, die in die Skript über die Zeile
+XQuery scripts are stored in the `exist/routines` collection. For testing purposes, the script `test.xql` already exists there.
+Central functions are predefined in the **ediarum** module, which can be found in `modules/ediarum.xql` in the **ediarum.DB**-App.
+They can be loaded into the current script via
 
     import module namespace ediarum="http://www.bbaw.de/telota/software/ediarum/ediarum-app" at "/db/apps/ediarum/modules/ediarum.xql";
 
-in das aktuelle Skript geladen werden können.
+If the script is to be executed with extended permissions, the permissions must be set accordingly.
+(for example: rwxr-sr-x, with 'dba' as group).
 
-Soll das Skript mit erweiterten Berechtigungen ausgeführt werden können, müssen die Rechte entsprechend
-gesetzt werden (etwa: rwxr-sr-x, mit 'dba' als Gruppe).
+## Triggers
 
-### Trigger
+For eXist-db different triggers can be set, which are executed at certain events,
+for example when resources are created or changed in a certain collection (see [Trigger](https://exist-db.org/exist/apps/doc/triggers.xml)).
 
-Für eXist-db können verschiedene Trigger eingerichtet werden, die bei bestimmten Ereignissen ausgeführt werden,
-etwa wenn Dateien in einem bestimmten Ordner erstellt oder verändert werden (s. auch [Trigger](https://exist-db.org/exist/apps/doc/triggers.xml)).
+Triggers come in handy if you manage data in different resources, but also edit them collectively.
+This is the case with registers where each register entry is saved in a separate file.
+The different resources can be merged by a trigger with an XQuery and stored separately.
+Another example are resources to which a read access should also exist when working on them.
+These resources can be stored separately as well by a trigger and a corresponding XQuery script.
 
-Die Trigger sind praktisch, falls man Daten in verschiedenen Dateien verwaltet, die aber auch gemeinsam benutzt
-werden sollen. Dies ist z. B. bei Registern der Fall, wo jeder Registereintrag in einer eigenen Datei gespeichert wird.
-Die verschiedenen Dateien lassen sich durch einen Trigger mit einem xQuery zusammenführen und separat speichern.
-Ein anderes Beispiel sind Dateien auf die auch ein Lesezugriff existieren soll, wenn an ihnen gearbeitet wird.
-Auch hier lassen sich die Dateien durch einen Trigger und entsprechendes xQuery-Skript separat speichern.
+Triggers for the collection `/db/my/path` and its subdirectories can be set up by storing a `collection.xconf` under `/db/system/config/db/my/path`.
+A XQuery may reference to this config file. This must belong to the trigger namespace and can define various actions
+(see [xQuery functions](https://exist-db.org/exist/apps/doc/triggers.xml#D2.2.5.3)). The setup is illustrated in the following example.
 
-Trigger für den Ordner `/db/mein/Pfad` und dessen Subordner lassen sich einrichten, indem im Ordner
-`/db/system/config/db/mein/Pfad` eine Datei `collection.xconf` abgelegt wird, die etwa auf eine
-xQuery-Datei verweisen kann. Diese muss zum Trigger-Namespace gehören und kann verschiedene Aktionen definieren
-(s. [xQuery-Funktionen](https://exist-db.org/exist/apps/doc/triggers.xml#D2.2.5.3)). Die Einrichtung wird im folgenden an einem Beispiel
-erläutert.
+**Example:**
 
-Beispiel: Jeder Registereintrag eines gemeinsamen Register liegt in einer eigenen Datei.
-Nach der Erstellung eines Registereintrags (d.h. einer neuen Datei im Ordner Register) sollen die Berechtigungen für diese Datei neu gesetzt werden.
+Each register entry of a common register is stored in a seperate file.
+After creating a register entry (i.e. a new resource in the Register collection), the permissions for this file should be reset.
 
-Im Ordner `/db/system/config/db/projects/PROJECT/Register` wird
-eine Datei `collection.xconf` mit folgendem
-Inhalt gespeichert:
+A`collection.xconf` file is stored under `/db/system/config/db/projects/PROJECT/Register` with the following content:
 
     <collection xmlns="http://exist-db.org/collection-config/1.0">
         <triggers>
@@ -175,8 +117,8 @@ Inhalt gespeichert:
         </triggers>
     </collection>
 
-Die Datei `/db/apps/ediarum/routinen/set-permissions-for-document.xql` gehört
-zum Namespace trigger und definiert einen Trigger, der die gewünschten Aktion durchführt:
+The `/db/apps/ediarum/routinen/set-permissions-for-document.xql` file belongs to
+to the namespace trigger and defines a trigger that performs the desired action:
 
     xquery version "3.0";
 
@@ -193,5 +135,4 @@ zum Namespace trigger und definiert einen Trigger, der die gewünschten Aktion d
         return ()
      };
 
-
-Die auszuführenden xQueries müssen über die im Trigger angegebene URL erreichbar sein, d.h. sie müssen auch mit Gastrechten ausführbar sein.
+The XQueries to be executed must be accessible via the URL specified in the trigger, i.e. they must also be executable with guest privileges.

@@ -1,4 +1,4 @@
-xquery version "1.0";
+xquery version "3.1";
 
 import module namespace xmldb="http://exist-db.org/xquery/xmldb";
 import module namespace config="http://www.bbaw.de/telota/software/ediarum/config" at "./modules/config.xqm";
@@ -23,11 +23,14 @@ declare function local:write-to-filesystem($file-path, $directory) {
 (: Das project-Verzeichnis wird angelegt. :)
 xmldb:create-collection("/db", "projects"),
 xmldb:create-collection("/db/system/config/db", "projects"),
-sm:chmod(xs:anyURI("/db/apps/ediarum/routinen/scheduler.xql"), "rwxr-sr-x")
+sm:chmod(xs:anyURI("/db/apps/ediarum/routinen/scheduler.xql"), "rwxr-sr-x"),
+let $config := doc("setup/setup.xml")
+let $file := file:read(config:get-existdb-jetty-config-path())
+let $current-port := normalize-space(replace($file, '^.*?<SystemProperty name="jetty.port" default="(\d+)"/>.*?$', "$1", "s"))
+let $file-ssl := file:read(config:get-existdb-jetty-ssl-config-path())
+let $current-ssl-port := normalize-space(replace($file-ssl, '^.*?<SystemProperty name="jetty.ssl.port" deprecated="ssl.port" default="(8443)"/>.*?$', "$1", "s"))
 
-(: Die Dateien auf der lokalen Maschine werden eingerichtet :)
-(: TODO: wird nicht mehr benötigt, da es eine alternative Synchronisation gibt. Diese hier ist allerdings schneller.
-file:mkdir(concat($home, "/ediarum")),
-local:write-to-filesystem(concat($target, "/local-files/ediarum.py"), concat($home, "/ediarum/ediarum.py")),
-local:write-to-filesystem(concat($target, "/local-files/synch.py"), concat($home, "/ediarum/synch.py"))
- :)
+return (
+    update value doc("setup/setup.xml")/setup/property[@name="port"]/@value with $current-port,
+    update value doc("setup/setup.xml")/setup/property[@name="sslPort"]/@value with $current-ssl-port
+)

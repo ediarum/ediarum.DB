@@ -93,7 +93,6 @@ $(document).ready(function() {
                         </div>
                         <div class="form-group">
                             <label for="scheduler-job-cron-select">Periode</label>
-                            <!-- TODO -->
                             <select name="scheduler-job-cron-select" class="form-control" id="scheduler-job-cron-select">
                                 <option value="0/10 * * * *">Alle 10 Minuten</option>
                                 <option value="0 * * * *">Stündlich</option>

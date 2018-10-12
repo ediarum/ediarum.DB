@@ -1,40 +1,35 @@
-ediarum.DB: Installation
-========================
+# ediarum.DB: Installation
 
 ## exist-db
 
-Für die Benutzung von ediarum wird eine eXist-db Installation benötigt. Die
-letzte Version läßt sich [hier](https://github.com/eXist-db/exist) herunterladen. Vor der Installations müssen die [Installationsvoraussetzungen](https://exist-db.org/exist/apps/doc/quickstart.xml#system-requirements)
-erfüllt sein. Die genauen Installationsschritte finden sich in der [Online-Dokumentation](https://exist-db.org/exist/apps/doc/quickstart.xml).
+To use **ediarum** an eXist-db installation is required. The latest version can be downloaded [here](https://github.com/eXist-db/exist).
+Please  note that [installation requirements](https://exist-db.org/exist/apps/doc/quickstart.xml#system-requirements) must be fulfilled.
+A detailed installation guide can be found in the [online documentation](https://exist-db.org/exist/apps/doc/quickstart.xml).
 
-Auf Linux lässt sich eXist mit dem Befehl `java -jar eXist-{version}.jar -console` installieren. Als `target path` gibt man etwa den *vollständigen* Pfad zum Unterverzeichnis `/pfad/zu/exist_db` an und
-als `data dir` den wieder *vollständigen* Unterordner `/pfad/zu/data`. Daraufhin wird man aufgefordert das Admin-Passwort zu setzen.
-Die Voreinstellungen zum maximalen Speicher (1024 MB) und zum Cache (128 MB) kann man stehen lassen.
+On Linux eXist can be installed with the command `java -jar eXist-{version}.jar -console`.
+`target path` is the *absolute* path to the subdirectory (e.g.`/path/to/exist_db`).
+`data dir` is the *absolute* path to the subdirectory (e.g.`/path/to/data`).You will be asked to set the admin password.
+You can leave the default settings for maximum memory (1024 MB) and cache (128 MB).
 
-*Hinweis:* Bei Windows 10 kann es zu einem Problem kommen, wenn man den voreingestellten Speicher von 2048 MB stehen lässt. Es empfiehlt sich daher den Speicher bei der Installation auf 1024 MB herunterzusetzen. Auch kann es zu Problemen führen, wenn exist beim Start als Service installiert wird.
+*Note:* With Windows 10 there may be a problem if you leave the default memory of 2048 MB. It is therefore recommended to reduce the memory to 1024 MB during installation.
+It can also lead to problems if exist is installed as a *service* at startup.
 
-Die Datenbank läuft zunächst unter dem Standardport 8080, was aber auch angepasst werden kann (s. [Setup](#db-setup)).
-Über die Konsole kann eXist-db gestartet werden, etwa mit dem Befehl:
+The database initially runs under the standard port 8080, but this can be adjusted (see [Setup](#db-setup)).
+eXist-db can be started via the console:
 
     nohup bin/startup.sh $
 
-Die Datenbank lässt sich nach dem Starten über den Browser unter
-`server:port/exist` erreichen.
+Once the DB is started, it can be accessed via browser under `http://server:port/exist`.
 
 ## ediarum.DB
 
-In eine bestehende eXist-db-Installation kann die **ediarum.DB**-App über
-den Package-Manager hinzugefügt werden. Dazu muss im Dashboard der aktuellen
-eXist-Installation der Package-Manager aufgerufen werden. Mit Klick auf
-das Symbol oben links wird das Fenster "Upload Packages" geöffnet. In
-diesem Fenster muss die aktuelle *ediarum.xar* hinzugefügt werden.
+With an existing eXist-db installation the **ediarum.DB** app can be accessed via
+the package manager. To do this, run the package manager fom the eXist-dashboard.
+Click the symbol at the top left to open "Upload Packages" dialog. Add your current *ediarum.xar*.
 
-Der eXist-Installation werden die Ressourcen der **ediarum.DB**-App hinzugefügt.
-Dann wird automatisch das xQuery `pre-install.xql` aufgerufen und ausgeführt. Darin werden die Nutzergruppen "website" und
-"oxygen" angelegt, ebenso die Standardnutzer "exist-bot", "oxygen-bot" und "website-user"
-mit gleich lautenden Passwörtern.
+The resources of the **ediarum.DB** app are added to the eXist installation.
+Then the xQuery `pre-install.xql` is automatically called and executed.
+It creates the user groups "website" and "oxygen", as well as the standard users "exist-bot", "oxygen-bot" and "website-user" with identical passwords.
 
-Nachdem die App mit ihren Dateien installiert wurde, wird automatisch das xQuery
-`post-install.xql` aufgerufen und ausgeführt.
-Dort werden die Zugriffsberechtigungen auf die verschiedenen System-Ordner und
-die dafür notwendigen Routinen eingerichtet.
+After the app has been installed `post-install.xql` is called and executed.
+This sets up access permissions to the different system directories and necessary routines.

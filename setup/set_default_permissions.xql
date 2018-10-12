@@ -23,7 +23,6 @@ let $exist := local:set-permission("/db/projects/"||$project||"/exist", "dba", "
 let $oxygen := local:set-permission("/db/projects/"||$project||"/oxygen", "oxygen", "rwxrwx---")
 let $oxygen-ediarum := let $resource := "/db/projects/"||$project||"/oxygen/ediarum.xql"
     return (sm:chgrp($resource, "oxygen"), sm:chmod($resource, "rwsr-x---"), "Updated: "||$resource)
-let $schemata := local:set-permission("/db/projects/"||$project||"/schemata", "oxygen", "rwxrwx---")
 let $web := local:set-permission("/db/projects/"||$project||"/web", "website", "rwxrwx---")
 let $config := let $resource := "/db/projects/"||$project||"/config.xml"
     return (sm:chgrp($resource, "dba"), "Updated: "||$resource)
@@ -31,5 +30,5 @@ let $webconfig := let $resource := "/db/projects/"||$project||"/webconfig.xml"
     return (sm:chgrp($resource, "website"), "Updated: "||$resource)
 let $controller := let $resource := "/db/projects/"||$project||"/controller.xql"
     return (sm:chgrp($resource, "website"), sm:chmod($resource, "rwxr-xr-x"), "Updated: "||$resource)
-let $scan := string-join(($druck,$exist,$oxygen,$schemata,$web,$config,$webconfig,$controller),"&#xA;")
+let $scan := string-join(($druck,$exist,$oxygen,$oxygen-ediarum,$web,$config,$webconfig,$controller),"&#xA;")
 return $scan

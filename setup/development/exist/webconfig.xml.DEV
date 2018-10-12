@@ -1,0 +1,9 @@
+<webconfig>
+    <baseurl>https://telotadev.bbaw.de:PORT/exist/rest/db/projects/%PROJECTNAME%/web</baseurl>
+    <data>/db/projects/%PROJECTNAME%/data</data>
+    <instance>intern test</instance>
+    <login>
+        <name>website-user</name>
+        <pass></pass>
+    </login>
+</webconfig>

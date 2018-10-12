@@ -18,9 +18,12 @@ declare function local:sub-collections($root as xs:string) {
     for $child in $children
     order by $child
     return
-        <children json:array="true">
-		{ local:collections(concat($root, '/', $child), $child) }
-		</children>
+        if (xmldb:collection-available(concat($root, '/', $child))) then
+            <children json:array="true">
+    		{ local:collections(concat($root, '/', $child), $child) }
+    		</children>
+        else
+            ()
 };
 
 declare function local:resources($root as xs:string) {

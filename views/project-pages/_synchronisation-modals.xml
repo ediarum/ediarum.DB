@@ -82,11 +82,11 @@ function updateProgress() {
                         </div>
                         <div class="form-group">
                             <label for="source-resource">Quellen-Ordner</label>
-                            <input type="text" class="form-control" placeholder="/db/projects/example/data/collection" name="source-resource"/>
+                            <input type="text" class="form-control" placeholder="data/collection" name="source-resource"/>
                         </div>
                         <div class="form-group">
-                            <label for="target-server">Ziel-Server</label>
-                            <input type="text" class="form-control" placeholder="example.com:8080" name="target-server"/>
+                            <label for="target-server">Ziel-Server (REST-Schnittstelle)</label>
+                            <input type="text" class="form-control" placeholder="https://example.com:8080/exist/rest" name="target-server"/>
                         </div>
                         <div class="form-group">
                             <label for="target-resource">Ziel-Ordner</label>
@@ -128,7 +128,7 @@ function updateProgress() {
                         </div>
                         <div class="form-group">
                             <label for="target-resource">Ziel-Ordner</label>
-                            <input type="text" class="form-control" placeholder="/db/projects/example/data/collection" name="target-resource"/>
+                            <input type="text" class="form-control" placeholder="data/collection" name="target-resource"/>
                         </div>
                         <div class="form-group">
                             <label for="target-group-name">Ziel-Gruppe</label>

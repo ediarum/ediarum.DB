@@ -1,0 +1,9 @@
+<webconfig>
+    <baseurl>http://localhost:8080/exist/rest/db/projects/%PROJECTNAME%/web</baseurl>
+    <data>/db/projects/%PROJECTNAME%/data</data>
+    <instance>intern test</instance>
+    <login>
+        <name>website-user</name>
+        <pass>website-user</pass>
+    </login>
+</webconfig>
