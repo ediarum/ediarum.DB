@@ -77,7 +77,7 @@
         <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
     </target>
 
-    <target name="release" description="Release the current version">
+    <target name="release" description="Release the current version without building">
         <zip basedir="." destfile="${release.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
     </target>
 

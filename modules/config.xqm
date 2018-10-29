@@ -1326,7 +1326,7 @@ declare function config:synchronize-zotero-connection-collections($project-name 
         )
     let $collection-keys := tokenize(normalize-space($txt), '\s')
     let $count := count($collection-keys)
-    let $block-count := ceiling(number($count) div number($limit))
+    let $block-count := xs:integer(ceiling(number($count) div number($limit)))
 
     let $collection-xml :=
         <collections>
