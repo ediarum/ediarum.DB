@@ -3,8 +3,8 @@
 ## exist-db
 
 To use **ediarum** an eXist-db installation is required. The latest version can be downloaded [here](https://github.com/eXist-db/exist).
-Please  note that [installation requirements](https://exist-db.org/exist/apps/doc/quickstart.xml#system-requirements) must be fulfilled.
-A detailed installation guide can be found in the [online documentation](https://exist-db.org/exist/apps/doc/quickstart.xml).
+Please  note that [installation requirements](https://exist-db.org/exist/apps/doc/basic-installation#system-requirements) must be fulfilled.
+A detailed installation guide can be found in the [online documentation](https://exist-db.org/exist/apps/doc/basic-installation).
 
 On Linux eXist can be installed with the command `java -jar eXist-{version}.jar -console`.
 `target path` is the *absolute* path to the subdirectory (e.g.`/path/to/exist_db`).
