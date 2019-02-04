@@ -1372,8 +1372,9 @@ declare function local:zip-development-collection() as empty-sequence() {
         local:replace-in-file($ediarum-path||"/setup/zip/development/exist/webconfig.xml.DEV", "%PROJECTNAME%", $project-name),
         local:replace-in-file($ediarum-path||"/setup/zip/development/exist/webconfig.xml.EDIT", "%PROJECTNAME%", $project-name)
     )
-    let $zip := compression:zip(xs:anyURI("/db/apps/ediarum/setup/zip/development"), true(), "/db/apps/ediarum/setup/zip")
-    let $store := xmldb:store(xs:anyURI("/db/apps/ediarum/setup"), "development.zip", $zip)
+    (: TODO: This doesn't work stable with every exist-db. Further testing is required. :)
+    (: let $zip := compression:zip(xs:anyURI("/db/apps/ediarum/setup/zip/development"), true(), "/db/apps/ediarum/setup/zip") :)
+    (: let $store := xmldb:store(xs:anyURI("/db/apps/ediarum/setup"), "development.zip", $zip) :)
     let $remove-zip-collection := xmldb:remove($zip-collection)
     return ()
 };

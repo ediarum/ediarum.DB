@@ -11,7 +11,11 @@ by
 
 ----------
 
-## Version 3.2.0 vom 2018-09-26
+## Version 3.2.1 of 2019-02-04
+
+* BUGFIX: Deactivate download function at developer project page because of performance issues.
+
+## Version 3.2.0 of 2018-09-26
 
 * UPDATE: Update port configuration for new exist version
 * UPDATE: Substitute empty() in function declarations with empty-sequence()
@@ -28,22 +32,22 @@ by
 * BUG: Update redirect path for login and logout
 * Clean code in  xqueries, update .md, build.xml with docu target
 
-## Version 3.1.0 vom 2018-02-20
+## Version 3.1.0 of 2018-02-20
 
 * Collection-Permission-Vergabe auch für Dateien durchsetzen
 * FEATURE #9197: Update build.properties
 * FEATURE #9197: Add development folder, generate and download actions
 * FEATURE #9178: Add error report to synchronisation
 
-## Version 3.0.2 vom 2017-11-27
+## Version 3.0.2 of 2017-11-27
 
 * UPDATE #9178: Change rest-path for push synchronisation
 
-## Version 3.0.1 vom 2017-11-07
+## Version 3.0.1 of 2017-11-07
 
 * BUGFIX #9084: Remove trigger for web collection
 
-## Version 3.0.0 vom 2017-11-06
+## Version 3.0.0 of 2017-11-06
 
 * UPDATE: update documentation
 * UPDATE: Fix bugs
@@ -79,7 +83,7 @@ by
 * FEATURE #5663: Oberfläche für Parameter ergänzen
 * FEATURE #5663: Add html layout + jquery for scheduler management
 
-## Version 2.2.0 vom 2016-09-12
+## Version 2.2.0 of 2016-09-12
 
 * Add release directory
 * Add functions in build.xml
@@ -111,7 +115,7 @@ by
 * FEATURE #6108: Add external_data to project collection
 * FEATURE #6108: Add setup for zotero connections
 
-## Version 2.1.0 von 2016
+## Version 2.1.0 of 2016
 
 * Fix function ediarum:bot-login
 * Add function signatures in config.xqm
@@ -119,7 +123,7 @@ by
 * FEATURE #6137: Passwörter für Standardnutzer änderbar machen
 * FEATURE #6139: Port-Änderung ermöglichen
 
-## Version 2.0.1.57 vom 2016-05-09
+## Version 2.0.1.57 of 2016-05-09
 
 * FEATURE #6138: Synchronisationsdatei mit config.xml verbinden
 * UPDATE: Update exist instance path variables
@@ -128,7 +132,7 @@ by
 * FEATURE: Add setup for projects-controller
 * BUGFIX: Remove scheduler time bug
 
-## Version 2.0.1.45 vom 2016-02-02
+## Version 2.0.1.45 of 2016-02-02
 
 * FEATURE #5701: Add synchronisation scheduler
 * UPDATE #5688: Update the synchronisation with correct http-headers
@@ -138,22 +142,22 @@ by
 * FEATURE Add webconfig.xml for web configuration
 * FEATURE #5422: Add group and permissions for pull synchronisation. Add edit function.
 
-## Version 2.0.0.32 vom 2016-01-15
+## Version 2.0.0.32 of 2016-01-15
 
 * UPDATE #5468: Remove bugs of the push synchronisation
 
-## Version 2.0.0.31 vom 2016-01-14
+## Version 2.0.0.31 of 2016-01-14
 
 * FEATURE #5468: Push and pull working with xquery
 * FEATURE #5468: Add a usable pull synchronization without python
 * FEATURE #5422: Add push synchronisation
 * UPDATE: Resolve merge conflict in build.xml
 
-## Version 2.0.0.16 vom 2015-12-01
+## Version 2.0.0.16 of 2015-12-01
 
 * UPDATE #5378: Clear up the ediarum app
 
-## Version 2.0.0.8 vom 2015-11-19
+## Version 2.0.0.8 of 2015-11-19
 
 * UPDATE #5332: Update logout behaviour
 * VERSION: Change version to 2.0.0.8

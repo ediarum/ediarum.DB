@@ -191,6 +191,7 @@ There is a choice between:
 
 On this page you can download a new developer directory.
 This already contains the basic structure for the development of an oxygen framework and other tools, such as ANT scripts for the development.
+**Note: This doesn't work stable with every exist-db. Further testing is required. Therefore, this function is deactivated in the code.**
 
 You can also download the current `build.xml` with the ANT scripts. Thus the ANT scripts can be kept up-to-date in the development.
 
