@@ -11,9 +11,17 @@ by
 
 ----------
 
-## Version 3.2.1 of 2019-02-04
+## Version 3.2.3 of 2019-02-04
 
 * BUGFIX: Deactivate download function at developer project page because of performance issues.
+
+## Version 3.2.2 of 2018-12-20
+
+* Update links in documentation
+
+## Version 3.2.1 of 2018-10-29
+
+* BUGFIX: Synchronizing zotero collections without error
 
 ## Version 3.2.0 of 2018-09-26
 
