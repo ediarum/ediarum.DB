@@ -11,6 +11,11 @@ by
 
 ----------
 
+## Version 3.2.4 of 2019-02-12
+
+* BUGFIX: Make zotero collections for indexes available.
+* BUGFIX: Build number in expath-pkg.xml and file name are now the same.
+
 ## Version 3.2.3 of 2019-02-04
 
 * BUGFIX: Deactivate download function at developer project page because of performance issues.

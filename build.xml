@@ -19,6 +19,12 @@
         <classpath refid="classpath.core"/>
     </typedef>
 
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="${ant.contrib.jar}"/>
+        </classpath>
+    </taskdef>
+
     <target name="show-version" description="Shows the current version number">
         <echo>Current build number:${project.version}</echo>
     </target>
@@ -27,6 +33,8 @@
         <propertyfile file="build.properties">
             <entry key="build.build.number" type="int" operation="+" value="1" pattern="0"/>
         </propertyfile>
+        <var name="build.build.number" unset="true"/>
+        <property file="build.properties"/>
     </target>
 
     <target name="increase-patch-number" description="Increases the patch number">
@@ -51,6 +59,8 @@
     </target>
 
     <target name="use-filters" depends="increase-build-number" description="Replace all ant filters in ant-files">
+        <var name="project.version" unset="true"/>
+        <property name="project.version" value="${build.major.number}.${build.minor.number}.${build.patch.number}.${build.build.number}"/>
         <delete>
             <fileset dir="">
                 <include name="expath-pkg.xml"/>
