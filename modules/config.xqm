@@ -1331,7 +1331,7 @@ declare function config:synchronize-zotero-connection-collections($project-name 
     let $collection-xml :=
         <collections>
             {
-                for $i in (1 to $block-count)
+                for $i in (0 to $block-count -1)
                 return
                 try {
                     let $parameters := "limit="||$limit||"&amp;start="||string(number($i)*number($limit))
