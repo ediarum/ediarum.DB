@@ -164,11 +164,12 @@ declare function admin-pages:project-list($node as node(), $model as map(*)) as 
                             <a class="navbar-brand" href="projects/{$project}/data.html">{$project}</a>
                         </div>
                         <div class="navbar-collapse navbar-right">
-                            <form action="" method="post">
+                            <!--form action="" method="post">
                                 <input type="hidden" name="action" value="delete-project"/>
                                 <input type="hidden" name="project-name" value="{$project}"/>
                                 <button type="submit" class="btn btn-default navbar-btn">Löschen</button>
-                            </form>
+                            </form-->
+                            <a type="button" href="" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#modalDeleteProject" data-project-name="{$project}">Löschen</a>
                         </div>
                     </div>
                 </nav>

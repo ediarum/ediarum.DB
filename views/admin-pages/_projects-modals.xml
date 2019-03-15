@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div>
+    <script type="text/javascript">
+$(document).ready(function() {
+    $('#modalDeleteProject').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var modal = $(this)
+        modal.find('input[name="project-name"]').val(button.data('project-name'))
+        $("#removeProject").text(button.data('project-name'));
+    });
+});
+    </script>
+    <div class="modal fade" id="modalDeleteProject" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content panel-danger">
+                <div class="modal-header panel-heading">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Löschen</h4>
+                </div>
+                <form action="" method="post">
+                    <input type="hidden" name="action" value="delete-project"/>
+                   <div class="modal-body">
+                        <p>Möchten Sie folgendes Projekt wirklich löschen?</p>
+                        <p id="removeProject"/>
+                        <input type="hidden" name="project-name"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button class="btn btn-danger" type="submit">Löschen</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- / . modal-dialog -->
+    </div><!-- / . modal -->
+</div>
