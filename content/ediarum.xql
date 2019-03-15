@@ -33,3 +33,7 @@ declare function ediarum:get-project-index($project-name as xs:string, $index-id
 declare function ediarum:get-ediarum-index($project-name as xs:string, $index-id as xs:string, $first-letter as xs:string?, $show-details as xs:string*) as node()? {
     config:get-ediarum-index($project-name, $index-id, $first-letter, $show-details)
 };
+
+declare function ediarum:get-ediarum-index-unordered($project-name as xs:string, $index-id as xs:string, $first-letter as xs:string?, $show-details as xs:string*) as node()? {
+    config:get-ediarum-index-unordered($project-name, $index-id, $first-letter, $show-details)
+};

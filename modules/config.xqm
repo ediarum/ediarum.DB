@@ -455,6 +455,14 @@ declare function config:get-data-collection ($project-name as xs:string) as xs:s
 };
 
 declare function config:get-ediarum-index($project-name as xs:string, $ediarum-index-id as xs:string, $first-letter as xs:string?, $show-details as xs:string*) as node()? {
+    config:get-ediarum-index-with-params($project-name, $ediarum-index-id, $first-letter, $show-details, true())
+};
+
+declare function config:get-ediarum-index-unordered($project-name as xs:string, $ediarum-index-id as xs:string, $first-letter as xs:string?, $show-details as xs:string*) as node()? {
+    config:get-ediarum-index-with-params($project-name, $ediarum-index-id, $first-letter, $show-details, false())
+};
+
+declare function config:get-ediarum-index-with-params($project-name as xs:string, $ediarum-index-id as xs:string, $first-letter as xs:string?, $show-details as xs:string*, $order as xs:boolean) as node()? {
     if (not(config:is-ediarum-index-active($project-name, $ediarum-index-id))) then
         ()
     else
@@ -486,7 +494,7 @@ declare function config:get-ediarum-index($project-name as xs:string, $ediarum-i
                 for $x in $entries//tei:person
                 let $name :=
                     if ($x/tei:persName[@type='reg'][1]/tei:forename)
-                    then (concat(string-join($x/tei:persName[@type='reg'][1]/tei:surname/normalize-space()), ', ', string-join($x/tei:persName[@type='reg'][1]/tei:forename/normalize-space())))
+                    then (normalize-space(concat(string-join($x/tei:persName[@type='reg'][1]/tei:surname/text()), ', ', string-join($x/tei:persName[@type='reg'][1]/tei:forename/text()))))
                     else ($x/tei:persName[@type='reg'][1]/tei:name[1]/normalize-space())
                 let $lifedate :=
                     if ($x/tei:floruit)
@@ -498,7 +506,7 @@ declare function config:get-ediarum-index($project-name as xs:string, $ediarum-i
                     if ($x/tei:note//text() and $show-details='note')
                     then (concat(' (', $x/tei:note//normalize-space(), ')'))
                     else ()
-                order by $name
+                order by if ($order) then $name else ()
                 return
                     try {
                         element li {
@@ -538,7 +546,7 @@ declare function config:get-ediarum-index($project-name as xs:string, $ediarum-i
                     if ($place/tei:note//text() and $show-details='note')
                     then (concat(' (', $place/tei:note[1]//normalize-space(), ')'))
                     else ()
-                order by $name[1]
+                order by if ($order) then $name[1] else ()
                 return
                     try {
                         element li {
@@ -562,7 +570,7 @@ declare function config:get-ediarum-index($project-name as xs:string, $ediarum-i
                     if ($item[ancestor::tei:item])
                     then ($item/ancestor::tei:item/tei:label[@type='reg'][1]/normalize-space()||' - '||$item/tei:label[@type='reg'][1]/normalize-space())
                     else ($item/tei:label[@type='reg'][1]/normalize-space())
-                order by $name[1]
+                order by if ($order) then $name[1] else ()
                 return
                 try {
                     element li {
@@ -583,7 +591,7 @@ declare function config:get-ediarum-index($project-name as xs:string, $ediarum-i
             element ul {
                 for $org in $entries//tei:org
                 let $name := $org/tei:orgName[@type='reg'][1]/normalize-space()
-                order by $name[1]
+                order by if ($order) then $name[1] else ()
                 return
                     try {
                         element li {

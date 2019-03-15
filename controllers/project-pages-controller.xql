@@ -298,6 +298,7 @@ declare function project-pages:list-ediarum-indexes($node as node(), $model as m
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a href="{substring-before(request:get-url(), request:get-context-path())||request:get-context-path()||"/rest"}/db/projects/{$project-name}/oxygen/ediarum.xql?index={$ediarum-index-id}" target="_blank">GET</a></li>
+                                <li><a href="{substring-before(request:get-url(), request:get-context-path())||request:get-context-path()||"/rest"}/db/projects/{$project-name}/oxygen/ediarum.xql?index={$ediarum-index-id}&amp;order=false" target="_blank">GET UNORDERED</a></li>
                             </ul>
                         </div>
                     </div>
