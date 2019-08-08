@@ -290,7 +290,7 @@ declare function config:format-zotero-item($item as node()) as map(*) {
         )
         else
             string-join(
-                for $author at $pos in $item/creators/item[creatorType="author"]
+                for $author at $pos in $item/creators/item[creatorType="author" or creatorType="cartographer"]
                 return
                     if ($pos eq 1) then
                         $author/lastName[1]||", "||$author/firstName[1]

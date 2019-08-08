@@ -9,7 +9,11 @@ by
 *Berlin-Brandenburgische Akademie der Wissenschaften*  
 *TELOTA - The electronic life of the academy*
 
-----------
+------------
+
+##
+
+* Display cartographer names in oxygen-zotero-API.
 
 ## Version 3.2.4 of 2019-02-12
 
