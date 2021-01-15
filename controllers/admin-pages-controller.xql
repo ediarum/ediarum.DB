@@ -4,6 +4,7 @@ module namespace admin-pages="http://www.bbaw.de/telota/software/ediarum-app/adm
 import module namespace config="http://www.bbaw.de/telota/software/ediarum/config" at "../modules/config.xqm";
 import module namespace ediarum="http://www.bbaw.de/telota/software/ediarum/ediarum-app" at "./ediarum.xql";
 import module namespace xmldb="http://exist-db.org/xquery/xmldb";
+import module namespace http = "http://expath.org/ns/http-client";
 
 declare namespace scheduler="http://exist-db.org/xquery/scheduler";
 
@@ -146,7 +147,7 @@ declare function admin-pages:projects($node as node(), $model as map(*)) as map(
                 )
             else ()
         return
-        map { "result" := $result}
+        map { "result" : $result}
         )
     else (
         map {}
@@ -187,7 +188,7 @@ declare function admin-pages:scheduler($node as node(), $model as map(*)) as map
                 )
             else ()
         return
-            map { "result" := $result }
+            map { "result" : $result }
     ) else (
         map{}
     )
@@ -275,7 +276,7 @@ declare function admin-pages:setup($node as node(), $model as map(*)) as map(*) 
                 )
             else ()
         return
-            map { "result" := $result }
+            map { "result" : $result }
     ) else (
         map{}
     )
@@ -414,16 +415,16 @@ declare function local:change-ports($port, $ssl-port) {
 (: Copy a file to a project collection. :)
 declare function local:copy_file_to_project($p, $source_path, $rel_collection_path, $file_name, $group_name, $permissions) {
     if(sm:is-dba(config:get-current-user())) then (
-        xmldb:copy($source_path, config:project-collection-path($p, $rel_collection_path), $file_name),
-        sm:chgrp(config:project-resource-uri($p, concat($rel_collection_path,"/",$file_name)), $group_name),
-        sm:chmod(config:project-resource-uri($p, concat($rel_collection_path,"/",$file_name)), $permissions)
+        xmldb:copy-resource($source_path, $file_name, config:project-collection-path($p, $rel_collection_path), $file_name),
+        sm:chgrp(config:project-resource-uri($p, $rel_collection_path||"/"||$file_name), $group_name),
+        sm:chmod(config:project-resource-uri($p, $rel_collection_path||"/"||$file_name), $permissions)
     ) else ()
 };
 
 (: Copy a file to the right system config colletion. :)
 declare function local:copy_file_to_system_config($p, $source_path, $rel_collection_path, $file_name, $new_file_name) {
     if(sm:is-dba(config:get-current-user())) then (
-        xmldb:copy($source_path, concat("/db/system/config",config:project-collection-path($p, $rel_collection_path)), $file_name),
+        xmldb:copy-resource($source_path, $file-name, concat("/db/system/config",config:project-collection-path($p, $rel_collection_path)), $file_name),
         xmldb:rename(concat("/db/system/config",config:project-collection-path($p, $rel_collection_path)), $file_name, $new_file_name)
     ) else ()
 };
@@ -441,14 +442,14 @@ declare function local:create-new-project($p) {
             sm:create-group($nutzer-group),
             sm:add-group-member($nutzer-group, ("website-user")),
 
-            config:mkcol-in-project($p, "", "data", $nutzer-group, "rwxrwx---"),
-            config:mkcol-in-project($p, "data", "Briefe", $nutzer-group, "rwxrwx---"),
-            config:mkcol-in-project($p, "data", "Register", $nutzer-group, "rwxrwx---"),
-            config:mkcol-in-project($p, "", "external_data", $nutzer-group, "rwxrwx---"),
+            config:mkcol-in-project($p, "", "data", $nutzer-group, "rwxrwx--x"),
+            config:mkcol-in-project($p, "data", "Briefe", $nutzer-group, "rwxrwx--x"),
+            config:mkcol-in-project($p, "data", "Register", $nutzer-group, "rwxrwx--x"),
+            config:mkcol-in-project($p, "", "external_data", $nutzer-group, "rwxrwx--x"),
             config:mkcol-in-project($p, "", "oxygen", "oxygen", "rwxrwx---"),
             config:mkcol-in-project($p, "", "web", "website", "rwxr-x---"),
             config:mkcol-in-project($p, "", "druck", "website", "rwxr-x---"),
-            config:mkcol-in-project($p, "", "exist", "exist", "rwxrwx---"),
+            config:mkcol-in-project($p, "", "exist", "dba", "rwxrwx---"),
             config:mkcol-in-project($p, "exist", "routinen", "dba", "rwxrwx---"),
             config:mkcol-in-project($p, "exist/routinen", "scheduler", "dba", "rwxrwx---"),
 
@@ -502,12 +503,17 @@ declare function local:projects-controller-active() {
 };
 
 declare function local:projects-controller-is-running() {
-    if(sm:is-dba(config:get-current-user())) then (
+    if(sm:is-dba(config:get-current-user())) 
+    then (
+        let $connection-uri := substring-before(request:get-url(),"/apps")||"/projects/"
+        let $req := <http:request href="{ $connection-uri }" method="head"/>
+        let $response := http:send-request($req)
+        let $status-code := $response[1]/@status/string()
         let $valid-status-codes := ("401", "200")
-        let $statusCode := httpclient:head(xs:anyURI(substring-before(request:get-url(),"/apps")||"/projects/"), false(), ())/@statusCode/string()        let $projects-controller-running := exists(index-of($valid-status-codes, $statusCode))
-        return
-            $projects-controller-running
-    ) else ()
+        let $projects-controller-running := exists(index-of($valid-status-codes, $status-code))
+        return $projects-controller-running
+    ) 
+    else ()
 };
 
 declare function local:scheduler-active() {

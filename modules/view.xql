@@ -20,8 +20,8 @@ import module namespace project-pages="http://www.bbaw.de/telota/software/ediaru
 declare option exist:serialize "method=html5 media-type=text/html enforce-xhtml=yes";
 
 let $config := map {
-    $templates:CONFIG_APP_ROOT := $config:app-root,
-    $templates:CONFIG_STOP_ON_ERROR := true()
+    $templates:CONFIG_APP_ROOT : $config:app-root,
+    $templates:CONFIG_STOP_ON_ERROR : true()
 }
 (:
  : We have to provide a lookup function to templates:apply to help it

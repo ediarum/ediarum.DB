@@ -18,23 +18,34 @@ declare function local:set-permission($uri as xs:string, $group as xs:string, $m
     }), '&#xA;')
 };
 
-let $druck := try {local:set-permission($project-path||"/druck", "website", "rwxrwx---")} catch * {"Couldn't set permissions of /web"}
-let $exist := try {local:set-permission($project-path||"/exist", "dba", "rwxrwx---")} catch * {"Couldn't set permissions of /exist"}
-let $oxygen := try {local:set-permission($project-path||"/oxygen", "oxygen", "rwsr-x---")} catch * {"Couldn't set permissions of /oxygen"}
-let $web := try {local:set-permission($project-path||"/web", "website", "rwxrwx---")} catch * {"Couldn't set permissions of /web"}
-let $config := try {
+let $druck := 
+    try {local:set-permission($project-path||"/druck", "website", "rwxrwx---")} 
+    catch * {"Couldn't set permissions of /web"}
+let $exist := 
+    try {local:set-permission($project-path||"/exist", "dba", "rwxrwx---")} 
+    catch * {"Couldn't set permissions of /exist"}
+let $oxygen := 
+    try {local:set-permission($project-path||"/oxygen", "oxygen", "rwsr-x---")} 
+    catch * {"Couldn't set permissions of /oxygen"}
+let $web := 
+    try {local:set-permission($project-path||"/web", "website", "rwxrwx---")} 
+    catch * {"Couldn't set permissions of /web"}
+let $config := 
+    try {
         let $resource := $project-path||"/config.xml"
         return (sm:chgrp($resource, "dba"), "Updated: "||$resource)
     } catch * {
         "Couldn't set group of /config.xml"
     }
-let $webconfig := try {
+let $webconfig := 
+    try {
         let $resource := $project-path||"/webconfig.xml"
         return (sm:chgrp($resource, "website"), "Updated: "||$resource)
     } catch * {
         "Couldn't set group of /webconfig.xml"
     }
-let $controller := try {
+let $controller := 
+    try {
         let $resource := $project-path||"/controller.xql"
         return (sm:chgrp($resource, "website"), sm:chmod($resource, "rwxr-xr-x"), "Updated: "||$resource)
     } catch * {

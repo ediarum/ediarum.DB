@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xdb="http://exist-db.org/ant" xmlns:if="ant:if" default="xar" name="ediarum.db">
+<project xmlns:xdb="http://exist-db.org/ant" xmlns:if="ant:if" default="build-xar" name="ediarum.db">
     <property name="project.app" value="ediarum.db"/>
     <property name="build.dir" value="build"/>
     <property name="archive.dir" value="temp"/>
-    <property name="release.dir" value="release"/>
     <property file="project.properties"/>
     <property file="build.properties"/>
-    <property name="project.version" value="${build.major.number}.${build.minor.number}.${build.patch.number}.${build.build.number}"/>
+    <property name="project.version" value="${build.major.number}.${build.minor.number}.${build.patch.number}"/>
 
     <path id="classpath.core">
-        <fileset dir="${exist.dir}/lib/core">
+        <fileset dir="${exist.dir}/lib">
             <include name="*.jar"/>
         </fileset>
-        <pathelement path="${exist.dir}/exist.jar"/>
-        <pathelement path="${exist.dir}/exist-optional.jar"/>
+        <pathelement path="${exist.dir}/exist-core-5.1.0.jar"/>
+        <!-- <pathelement path="${exist.dir}/exist-optional.jar"/> -->
     </path>
     <typedef resource="org/exist/ant/antlib.xml" uri="http://exist-db.org/ant">
         <classpath refid="classpath.core"/>
@@ -26,7 +25,12 @@
     </taskdef>
 
     <target name="show-version" description="Shows the current version number">
-        <echo>Current build number:${project.version}</echo>
+        <echo>Current version: ${project.version}</echo>
+        <echo>Current build number: ${build.build.number}</echo>
+        <exec executable="git" outputproperty="git.branch" failifexecutionfails="false">
+            <arg line="rev-parse --abbrev-ref HEAD"/>
+        </exec>
+        <echo message="Current branch: ${git.branch}"/> 
     </target>
 
     <target name="increase-build-number">
@@ -58,9 +62,20 @@
         </propertyfile>
     </target>
 
-    <target name="use-filters" depends="increase-build-number" description="Replace all ant filters in ant-files">
+    <!-- Replace all ant filters in ant-files -->
+    <target name="use-filters" depends="increase-build-number">
         <var name="project.version" unset="true"/>
-        <property name="project.version" value="${build.major.number}.${build.minor.number}.${build.patch.number}.${build.build.number}"/>
+        <exec executable="git" outputproperty="git.branch" failifexecutionfails="false">
+            <arg line="rev-parse --abbrev-ref HEAD"/>
+        </exec>
+        <condition property="project.version"
+                   value="${build.major.number}.${build.minor.number}.${build.patch.number}"
+                   else="${build.major.number}.${build.minor.number}.${build.patch.number}.${git.branch}.${build.build.number}">
+            <or>
+                <equals arg1="${git.branch}" arg2="master"/>
+                <equals arg1="${git.branch}" arg2="HEAD"/>
+            </or>
+        </condition>
         <delete>
             <fileset dir="">
                 <include name="expath-pkg.xml"/>
@@ -77,18 +92,10 @@
         </copy>
     </target>
 
-    <target name="xar" description="Build a xar-package">
+    <target name="build-xar" depends="use-filters" description="Build a xar-package and increase build number">
+        <delete dir="${build.dir}"/>
         <mkdir dir="${build.dir}"/>
-        <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
-    </target>
-
-    <target name="xar-build" depends="use-filters" description="Build a xar-package and increase build number">
-        <mkdir dir="${build.dir}"/>
-        <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
-    </target>
-
-    <target name="release" description="Release the current version without building">
-        <zip basedir="." destfile="${release.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${release.dir}/*, ${archive.dir}/**/*, expath-pkg.xml.ant"/>
+        <zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*, ${archive.dir}/**/*, lib/**/*, expath-pkg.xml.ant, *.properties"/>
     </target>
 
     <target name="deploy-local">
@@ -117,7 +124,6 @@
                 <exclude name="**/*.xql"/>
                 <exclude name="temp/"/>
                 <exclude name="build/"/>
-                <exclude name="release/"/>
                 <exclude name="modules/admin.xqm"/>
                 <exclude name="**/*.properties"/>
                 <exclude name="**/*.tmpl"/>

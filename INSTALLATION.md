@@ -23,6 +23,8 @@ Once the DB is started, it can be accessed via browser under `http://server:port
 
 ## ediarum.DB
 
+The latest version of ediarum.DB can be downloaded [here](https://github.com/ediarum/ediarum.DB/releases/latest).
+
 With an existing eXist-db installation the **ediarum.DB** app can be accessed via
 the package manager. To do this, run the package manager fom the eXist-dashboard.
 Click the symbol at the top left to open "Upload Packages" dialog. Add your current *ediarum.xar*.

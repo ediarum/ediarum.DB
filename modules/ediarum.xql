@@ -1,10 +1,12 @@
 xquery version "3.1";
 
+
 module namespace ediarum="http://www.bbaw.de/telota/software/ediarum/ediarum-app";
+import module namespace http = "http://expath.org/ns/http-client";
+
 
 declare namespace xdb="http://exist-db.org/xquery/xmldb";
 declare namespace sm="http://exist-db.org/xquery/securitymanager";
-
 declare variable $ediarum:datacopyDir:= doc("../setup/setup.xml")//property[@name='datacopyDir']/@value/data(.);
 declare variable $ediarum:ediarum-dir:= doc("../setup/setup.xml")//property[@name='ediarumDir']/@value/string(.);
 
@@ -19,26 +21,31 @@ declare function ediarum:get-bot-pass() as xs:string {
 };
 
 declare function ediarum:send-authHTTP($url as xs:anyURI, $username, $password, $request-type, $content, $content-type) {
-    let $persist := false()
-    let $length := string-length($content)
-    (:            <header name="Content-Type" value="{$content-type}"/>:)
-    (:            <header name="Content-Length" value="{$length}"/>:)
-    let $credentials := concat($username, ':', $password)
-    let $encode-credentials := util:base64-encode($credentials)
-    let $auth := concat('Basic ', $encode-credentials)
-    let $request-headers :=
-        <headers>
-            <header name="User-Agent" value="http auth"/>
-            <header name="Authorization" value="{$auth}"/>
-            <header name="Content-type" value="{$content-type}; charset=utf-8"/>
-        </headers>
-    return
-    if ($request-type='PUT') then
-        httpclient:put($url, $content, $persist, $request-headers)
-    else if ($request-type='GET') then
-        httpclient:get($url, $persist, $request-headers)
-    else if ($request-type='DELETE') then
-        httpclient:delete($url, $persist, $request-headers)
+  let $req :=
+    <http:request href="{ $url }"
+                  method="{ $request-type }"
+                  username="{ $username }"
+                  password="{ $password }"
+                  auth-method="basic"
+                  send-authorization="true">
+    </http:request>
+  let $req-with-content :=
+    <http:request href="{ $url }"
+                  method="{ $request-type }"
+                  username="{ $username }"
+                  password="{ $password }"
+                  auth-method="basic"
+                  send-authorization="true">
+      <http:body media-type="{ $content-type }"/>
+    </http:request>
+
+  return
+    if ($request-type='PUT') 
+    then http:send-request($req-with-content, (), $content)
+    else if ($request-type='GET') 
+    then http:send-request($req)
+    else if ($request-type='DELETE') 
+    then http:send-request($req)
     else ()
 };
 

@@ -40,6 +40,11 @@ $(document).ready(function() {
         var button = $(event.relatedTarget) // Button that triggered the modal
         var modal = $(this)
         modal.find('input[name="index-id"]').val(button.data('id'))
+        if (modal.find('input[name="index-id"]').val()) {
+            modal.find('input[name="index-id"]').attr('readonly', 'readonly')
+        } else {
+            modal.find('input[name="index-id"]').removeAttr('readonly')
+        }
         modal.find('input[name="index-type"]').val(button.data('type'))
         modal.find('input[name="index-label"]').val(button.data('label'))
         modal.find('select[name="connection-id"]').val(button.data('connection-id'))
@@ -53,6 +58,11 @@ $(document).ready(function() {
         var button = $(event.relatedTarget) // Button that triggered the modal
         var modal = $(this)
         modal.find('input[name="index-id"]').val(button.data('id'))
+        if (modal.find('input[name="index-id"]').val()) {
+            modal.find('input[name="index-id"]').attr('readonly', 'readonly')
+        } else {
+            modal.find('input[name="index-id"]').removeAttr('readonly')
+        }
         modal.find('input[name="index-type"]').val(button.data('type'))
         modal.find('input[name="index-label"]').val(button.data('label'))
         modal.find('input[name="data-collection"]').val(button.data('data-collection'))

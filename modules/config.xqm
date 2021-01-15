@@ -6,6 +6,7 @@ xquery version "3.1";
  :)
 module namespace config="http://www.bbaw.de/telota/software/ediarum/config";
 import module namespace ediarum="http://www.bbaw.de/telota/software/ediarum/ediarum-app" at "./ediarum.xql";
+import module namespace http = "http://expath.org/ns/http-client";
 
 declare namespace templates="http://exist-db.org/xquery/templates";
 declare namespace exist="http://exist.sourceforge.net/NS/exist";
@@ -51,10 +52,10 @@ declare variable $config:project-index-api-path := "/oxygen/";
 declare variable $config:ediarum-index-api-file := "ediarum.xql";
 declare variable $config:user-group-suffix := "-nutzer";
 declare variable $config:ediarum-config-path := "/setup/setup.xml";
-declare variable $config:exist-conf-file := "conf.xml";
-declare variable $config:exist-controller-config-file := "/webapp/WEB-INF/controller-config.xml";
-declare variable $config:exist-jetty-config-file := "/tools/jetty/etc/jetty-http.xml";
-declare variable $config:exist-jetty-ssl-config-file := "/tools/jetty/etc/jetty-ssl.xml";
+declare variable $config:exist-conf-file := "/etc/conf.xml";
+declare variable $config:exist-controller-config-file := "/etc/webapp/WEB-INF/controller-config.xml";
+declare variable $config:exist-jetty-config-file := "/etc/jetty/jetty-http.xml";
+declare variable $config:exist-jetty-ssl-config-file := "/etc/jetty/jetty-ssl.xml";
 declare variable $config:ediarum-indexes := [
         map {
             "id": "persons",
@@ -150,9 +151,7 @@ declare function config:copy($source-uri as xs:string, $target-uri as xs:string,
             if (not(xmldb:collection-available($target-collection))) then (
                 config:mkcol($target-collection, $group, $permissions)
             ) else (),
-            xmldb:copy($source-collection, $target-collection, $source-resource),
-            if ($source-resource eq $target-resource) then ()
-            else xmldb:rename($target-collection, $source-resource, $target-resource),
+            xmldb:copy-resource($source-collection, $source-resource, $target-collection, $target-resource) eq $target-uri,
             sm:chgrp(xs:anyURI($target-uri), $group),
             sm:chmod(xs:anyURI($target-uri), $permissions),
             true()
@@ -1039,7 +1038,7 @@ declare function config:manage-session($action as xs:string) as xs:anyAtomicType
         let $logname := request:get-parameter('user','')
         let $logpass := request:get-parameter('pass','')
         return (
-            xmldb:login('db',$logname,$logpass),
+            xmldb:login('/db',$logname,$logpass),
             let $primary-group := sm:get-user-primary-group($logname)
             let $primary-project := substring-before($primary-group, $config:user-group-suffix)
             let $uri := if ($primary-group eq "dba") then (
@@ -1154,14 +1153,14 @@ declare function config:substring-beforelast($string as xs:string, $cut as xs:st
 
 declare function config:synchronisation-get-filenames-in-existdb-collection($server as xs:string, $username as xs:string, $password as xs:string, $resource as xs:string) as map(*) {
     let $response := ediarum:send-authHTTP(xs:anyURI(concat($server, $resource)), $username, $password, 'GET', (), ())
-    let $error := xs:integer($response/@statusCode/string())!=200
+    let $error := xs:integer($response/@status/string())!=200
     let $result :=
         if ($error) then (
             $response
             )
         else (
             (:namespace 'http://exist.sourceforge.net/NS/exist':)
-            let $exist-result := $response//httpclient:body/exist:result
+            let $exist-result := $response[2]/exist:result
             let $child-collections := $exist-result/exist:collection/exist:collection
             let $child-resources := $exist-result/exist:collection/exist:document
             return (
@@ -1174,7 +1173,7 @@ declare function config:synchronisation-get-filenames-in-existdb-collection($ser
             )
         )
     return
-        map { "error" := $error ,"result" := $result}
+        map { "error" : $error ,"result" : $result}
 };
 
 declare function config:synchronisation-pull-existdb-collections($source-server as xs:string, $source-username as xs:string, $source-password as xs:string, $source-collection as xs:string, $target-collection as xs:string, $target-group-name as xs:string, $target-mode as xs:string) as map(*) {
@@ -1205,52 +1204,18 @@ declare function config:synchronisation-pull-existdb-collections($source-server 
                     let $path := xs:anyURI(concat($source-server, $resource))
                     (: In existdb 1.4 werden CSS/Textdateien nicht korrekt ausgeliefert. :)
                     let $response := ediarum:send-authHTTP($path, $source-username, $source-password, 'GET', (), ())
-                    let $type := $response//httpclient:body/@type/string()
-                    let $encoding := $response//httpclient:body/@encoding/string()
-                    let $mimetype := $response//httpclient:body/@mimetype/string()
-                    let $textcontent := $response//httpclient:body/text()
-                    let $doc := if ($type="xml") then (
-                                    $response//httpclient:body/*
-                                    )
-                                else if ($type="binary" and $encoding="Base64Encoded" and $mimetype="application/xquery") then (
-                                    xs:base64Binary($response//httpclient:body/text())
-                                    )
-                                else if ($type="binary" and $encoding="Base64Encoded" and $mimetype="application/x-javascript") then (
-                                    xs:base64Binary($response//httpclient:body/text())
-                                    )
-                                else if ($type="binary" and $encoding="Base64Encoded" and $mimetype="application/octet-stream") then (
-                                    xs:base64Binary($response//httpclient:body/text())
-                                    )
-                                else if ($type="binary" and $encoding="Base64Encoded") then (
-                                    xs:base64Binary($response//httpclient:body/text())
-                                    )
-                                else if ($type="text" and $encoding="URLEncoded") then (
-                                    util:unescape-uri($textcontent, "UTF-8")
-                                    )
-                                else ()
-                    (: Alternative Quelle für die Dateien, statt über http. Funktioniert nur, wenn es derselbe Server ist! :)
-                    (:let $source-resource-exist-path := "xmldb:exist://"||$source-server||"/exist/xmlrpc" ||$resource
-                    let $login := xmldb:login($source-resource-exist-path, $source-username, $source-password)
-                    let $doc := doc():)
+                    let $mimetype := $response[1]//http:body/@media-type/string()
+                    let $doc := $response[2]
                     (: Speichere die Datei :)
                     let $target-resource := config:substring-afterlast($resource, "/")
                     let $resource-collection := concat($target-collection,config:substring-beforelast(substring-after($resource, $source-collection), '/'))
                     let $create-collection := config:create-collection($resource-collection, config:get-exist-bot-name(), $target-group-name, $target-mode)
-            (: <httpclient:response xmlns:httpclient="http://exist-db.org/xquery/httpclient" statusCode="200">
-                <httpclient:headers>
-                    <httpclient:header name="name" value="value"/>
-                    ...
-                </httpclient:headers>
-                <httpclient:body type="xml|xhtml|text|binary" mimetype="returned content mimetype">
-                    body content
-                </httpclient:body>
-            </httpclient:response> :)
                     return (
                         if (xs:string($doc)) then (
                             "Gespeicherte Datei: " || xmldb:store($resource-collection, $target-resource, $doc, $mimetype) || sm:chown(xs:anyURI($resource-collection||"/"||$target-resource), config:get-exist-bot-name()) || sm:chgrp(xs:anyURI($resource-collection||"/"||$target-resource), $target-group-name) || sm:chmod(xs:anyURI($resource-collection||"/"||$target-resource), $target-mode), <br/>
                             )
                         else (
-                            "Fehler: " || $resource || "; Type: " || $type || "; Response: ", $response, <br/>
+                            "Fehler: " || $resource || "; Response: ", $response, <br/>
                             )
                     )
         return
@@ -1264,7 +1229,7 @@ declare function config:synchronisation-push-existdb-collections($source-collect
     let $path := xs:anyURI(concat($target-server, $target-collection))
     let $delete-collection := ediarum:send-authHTTP($path, $target-username, $target-password, 'DELETE', (), ())
     let $collection-deleted := map {
-        "error" : index-of((200,204), xs:integer($delete-collection/@statusCode/string()))=(),
+        "error" : index-of((200,204), xs:integer($delete-collection/@status/string()))=(),
         "result" : $delete-collection
     }
     return
@@ -1296,9 +1261,9 @@ declare function config:synchronisation-push-existdb-collections($source-collect
                                 "application/xml":)
             (: Speichere die Datei :)
             let $response := ediarum:send-authHTTP($path, $target-username, $target-password, 'PUT', $content, $content-type)
-            let $error := xs:integer($response/@statusCode/string())!=201
+            let $error := xs:integer($response/@status/string())!=201
             let $result := if($error) then (
-                                "Fehler (" || $response/@statusCode/string() || ") bei: " || $resource
+                                "Fehler (" || $response/@status/string() || ") bei: " || $resource
                             ) else (
                                 $resource || " gespeichert als " || $target-resource (:), <br/>, serialize($response):)
                             )
@@ -1321,8 +1286,9 @@ declare function config:synchronize-zotero-connection-collections($project-name 
     let $api-key := $connection/api-key
     let $limit := "100"
     let $connection-uri := config:get-zotero-collections-uri($group-id, $api-key, "format=keys")
-    let $response := httpclient:get($connection-uri, false(),  ())
-    let $body := $response//httpclient:body/text()
+    let $req := <http:request href="{ $connection-uri }" method="get"/>
+    let $response := http:send-request($req)
+    let $body := $response[2]
     let $txt := xmldb:decode-uri($body)
     let $resource-name := "collections.txt"
     let $collection-uri := config:get-zotero-collection($project-name, $connection-id)
@@ -1344,8 +1310,9 @@ declare function config:synchronize-zotero-connection-collections($project-name 
                 try {
                     let $parameters := "limit="||$limit||"&amp;start="||string(number($i)*number($limit))
                     let $connection-uri := config:get-zotero-collections-uri($group-id, $api-key, $parameters)
-                    let $response := httpclient:get($connection-uri, false(),  ())
-                    let $body := $response//httpclient:body/text()
+                    let $req := <http:request href="{ $connection-uri }" method="get"/>
+                    let $response := http:send-request($req)
+                    let $body := $response[2]
                     let $json := util:base64-decode($body)
 
                     let $json-model := parse-json($json)
@@ -1391,9 +1358,13 @@ declare function config:synchronize-zotero-connection-in-blocks($project-name as
     let $parameters := "since="||$since||"&amp;format=keys"
 
     let $connection-uri := config:get-zotero-connection-uri($group-id, $api-key, $parameters)
-    let $headers :=  <headers><header name="If-Modified-Since-Version" value="{$since}"/></headers>
-    let $response := httpclient:get($connection-uri, false(),  $headers)
-    let $status-code := $response/@statusCode/string()
+    let $req :=  
+        <http:request href="{ $connection-uri }" method="get">
+            <http:header name="If-Modified-Since-Version" value="{$since}"/>
+        </http:request>
+
+    let $response := http:send-request($req)
+    let $status-code := $response[1]/@status/string()
     let $result :=
         if ($status-code eq "403") then (
             <result>
@@ -1421,7 +1392,7 @@ declare function config:synchronize-zotero-connection-in-blocks($project-name as
                         xmldb:remove($collection-uri, $resource)
                 )
                 else ()
-            let $count := $response//httpclient:header[@name eq 'Total-Results']/@value/string()
+            let $count := $response[1]//http:header[@name eq 'total-results']/@value/string()
             let $block-count := ceiling(number($count) div number($limit))
             let $message :=
                 for $i in (0 to xs:integer($block-count -1))
@@ -1433,8 +1404,9 @@ declare function config:synchronize-zotero-connection-in-blocks($project-name as
                         else ""
                     let $parameters := "since="||$since||"&amp;limit="||$limit||"&amp;"||$include||"&amp;start="||string(number($i)*number($limit))
                     let $connection-uri := config:get-zotero-connection-uri($group-id, $api-key, $parameters)
-                    let $response := httpclient:get($connection-uri, false(),  ())
-                    let $body := $response//httpclient:body/text()
+                    let $req := <http:request href="{ $connection-uri }" method="get"/>
+                    let $response := http:send-request($req)
+                    let $body := $response[2]
                     let $json := util:base64-decode($body)
 
                     let $json-model := parse-json($json)

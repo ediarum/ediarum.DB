@@ -2,6 +2,7 @@ xquery version "3.1";
 
 module namespace project-pages="http://www.bbaw.de/telota/software/ediarum-app/project-pages";
 import module namespace config="http://www.bbaw.de/telota/software/ediarum/config";
+import module namespace http = "http://expath.org/ns/http-client";
 declare namespace functx = "http://www.functx.com";
 
 declare function functx:escape-for-regex($arg as xs:string?) as xs:string {
@@ -86,7 +87,7 @@ declare function project-pages:data($node as node(), $model as map(*)) as empty-
             let $user-group := config:project-user-group(config:get-current-project())
             return (
             sm:chgrp($new-collection, $user-group),
-            sm:chmod($new-collection, "rwxrwx---")
+            sm:chmod($new-collection, "rwxrwx--x")
             ))
         else ()
         )
@@ -102,11 +103,24 @@ declare function project-pages:development($node as node(), $model as map(*)) as
         let $project := config:get-current-project()
         let $result := ()
         return
-            map { "result" := $result }
+            map { "result" : $result }
         )
     else (
         map {}
         )
+};
+
+declare function project-pages:form-update-zotero-index($node as node(), $model as map(*)) as node()* {
+    let $index := config:get-current-index()
+    return
+    if ($index/@type="zotero") then
+        <form role="search" action="" method="post">
+            <div class="form-group">
+                <input type="hidden" name="action" value="update-index"/>
+                <button type="submit" class="btn btn-default">Register aktualisieren!</button>
+            </div>
+        </form>
+    else ()
 };
 
 declare function project-pages:get-current-project($node as node(), $model as map(*)) as xs:string? {
@@ -199,7 +213,7 @@ declare function project-pages:index-items($node as node(), $model as map(*)) as
             ) :)
             else ()
         return
-            map { "result" := $result
+            map { "result" : $result
             (: , "connection-uri" : $connection-uri  :)
         }
         )
@@ -243,7 +257,7 @@ declare function project-pages:indexes($node as node(), $model as map(*)) as map
             )
             else ()
         return
-            map { "result" := $result}
+            map { "result" : $result}
         )
     else (
         map {}
@@ -310,29 +324,48 @@ declare function project-pages:list-ediarum-indexes($node as node(), $model as m
 
 declare function project-pages:list-index-items($node as node(), $model as map(*)) as node()* {
     let $project-name := config:get-current-project()
+    let $index-id := config:get-current-index-id()
     let $index := config:get-current-index()
-    let $collection-id := $index/config:get-parameter("collection-id")
-    let $connection-id := config:get-current-zotero-connection-id()
-    let $connection := config:get-zotero-connection-by-id($project-name, $connection-id)
-    let $zotero-group := $connection/group-id/string()
-    let $items := config:get-zotero-collection-items(config:get-current-project(), $connection-id, $collection-id, false())
-    return (
-        <h2>{count($items)} Einträge</h2>,
-        <ul class="list-group">
-            {
-                for $item in $items
-                let $item-map := config:format-zotero-item($item)
-                let $badge := <a class="badge" target="_blank" href="https://zotero.org/groups/{$zotero-group}/items/{$item-map('key')}">{$item-map('key')}</a>
-                let $class :=
-                    if ($item-map("missing-entries")) then
-                        "list-group-item list-group-item-warning"
-                    else
-                        "list-group-item"
-                order by lower-case(string($item-map("span"))) ascending
-                return
-                    <li class="{$class}"><span class="{$item-map('icon')}"/>{" "}{$item-map("span")}{$badge}</li>
-            }
-        </ul>
+    return
+    if ($index/@type="zotero") then
+        let $collection-id := config:get-current-zotero-collection()
+        let $collection-id := $index/config:get-parameter("collection-id")
+        let $connection-id := config:get-current-zotero-connection-id()
+        let $connection := config:get-zotero-connection-by-id($project-name, $connection-id)
+        let $zotero-group := $connection/group-id/string()
+        let $items := config:get-zotero-collection-items(config:get-current-project(), $connection-id, $collection-id, false())
+        return (
+            <h2>{count($items)} Einträge</h2>,
+            <ul class="list-group">
+                {
+                    for $item in $items
+                    let $item-map := config:format-zotero-item($item)
+                    let $badge := <a class="badge" target="_blank" href="https://zotero.org/groups/{$zotero-group}/items/{$item-map('key')}">{$item-map('key')}</a>
+                    let $class :=
+                        if ($item-map("missing-entries")) then
+                            "list-group-item list-group-item-warning"
+                        else
+                            "list-group-item"
+                    order by lower-case(string($item-map("span"))) ascending
+                    return
+                        <li class="{$class}"><span class="{$item-map('icon')}"/>{" "}{$item-map("span")}{$badge}</li>
+                }
+            </ul>
+        )
+    else (
+        let $xml := util:eval(xs:anyURI("/db/projects/"||$project-name||"/oxygen/ediarum.xql?index="||$index-id), false(), ())
+        let $items := $xml//*:item
+        return (
+            <h2>{count($items)} Einträge</h2>,
+            <ul class="list-group">
+                {
+                    for $item in $items
+                    let $badge := <a class="badge">{$item/@xml:id/string()}</a>
+                    return
+                        <li class="list-group-item">{$item/*:span/text()}{$badge}</li>
+                }
+            </ul>
+        )
     )
 };
 
@@ -628,7 +661,7 @@ declare function project-pages:scheduler($node as node(), $model as map(*)) as m
             "cron" : request:get-parameter('scheduler-job-cron',''),
             "type" : request:get-parameter('scheduler-job-type',''),
             "xquery" : request:get-parameter('scheduler-job-xquery',''),
-            "params" : map:new (
+            "params" : map:merge (
                 for $param in $parameter-names
                 return
                     map:entry(substring-after($param, "scheduler-job-param-"), request:get-parameter($param, ''))
@@ -641,7 +674,7 @@ declare function project-pages:scheduler($node as node(), $model as map(*)) as m
                 local:remove-scheduler-job($scheduler-job-id)
             ) else ()
         return
-            map{ "result" := $result }
+            map{ "result" : $result }
     ) else (
         map{}
     )
@@ -742,7 +775,7 @@ declare function project-pages:synchronisation($node as node(), $model as map(*)
                 )
             else ()
         return
-            map{ "result" := $result }
+            map{ "result" : $result }
         )
     else
         map{}
@@ -773,7 +806,7 @@ declare function project-pages:user($node as node(), $model as map(*)) as map(*)
                 )
             else ()
         return
-            map { "result" := $result}
+            map { "result" : $result}
         )
     else (
         map {}
@@ -842,7 +875,7 @@ declare function project-pages:zotero($node as node(), $model as map(*)) as map(
             )
             else ()
         return
-            map { "result" := $result}
+            map { "result" : $result}
         )
     else (
         map {}
@@ -880,7 +913,12 @@ declare function local:activate-ediarum-index($index-id as xs:string, $index-typ
             let $copy-files :=
                 switch($ediarum-index-structure)
                 case "one-file" return (
-                    config:copy($config:ediarum-db-path||"/setup/"||$index-file-name, config:get-data-collection($current-project)||"/"||$index-file-name, config:project-user-group($current-project), "rw-rw----")
+                    config:copy(
+                        $config:ediarum-db-path||"/setup/"||$index-file-name, 
+                        config:get-data-collection($current-project)||"/"||$index-file-name, 
+                        config:project-user-group($current-project), 
+                        "rw-rw----"
+                    )
                 )
                 case "one-file-per-letter" return (
                     not(false() = (
@@ -892,7 +930,12 @@ declare function local:activate-ediarum-index($index-id as xs:string, $index-typ
                         )
                         for $char in $abc
                         return
-                            config:copy($config:ediarum-db-path||"/setup/"||$index-file-name, config:get-data-collection($current-project)||"/"||$index-collection||"/"||$char||".xml", config:project-user-group($current-project), "rw-rw----")
+                            config:copy(
+                                $config:ediarum-db-path||"/setup/"||$index-file-name, 
+                                config:get-data-collection($current-project)||"/"||$index-collection||"/"||$char||".xml", 
+                                config:project-user-group($current-project), 
+                                "rw-rw----"
+                            )
                     ))
                 )
                 default return
@@ -1017,8 +1060,20 @@ declare function local:add-zotero-connection($connection-id as xs:string, $conne
     return
         <result>
             {config:update-file(config:get-config-file($current-project), $result),
-            config:mkcol-in-project($current-project, "external_data", "zotero", config:project-user-group($current-project), "rwxrwx---"),
-            config:mkcol-in-project($current-project, "external_data/zotero", $connection-name, config:project-user-group($current-project), "rwxrwx---")}
+            config:mkcol-in-project(
+                $current-project, 
+                "external_data", 
+                "zotero", 
+                config:project-user-group($current-project), 
+                "rwxrwx---"
+            ),
+            config:mkcol-in-project(
+                $current-project, 
+                "external_data/zotero", 
+                $connection-name, 
+                config:project-user-group($current-project), 
+                "rwxrwx---"
+            )}
             <type>success</type>
             <message>Die Verbindung wurde eingerichtet</message>
         </result>
@@ -1205,7 +1260,7 @@ declare function local:get-synchronisation-parameter($synch-name as xs:string, $
 declare function local:get-xquery-external-parameter($xquery as xs:string){
     let $resource := util:binary-to-string(util:binary-doc($xquery))
     let $lines := tokenize($resource, "\n")
-    let $params := map:new (
+    let $params := map:merge (
         for $line in $lines
         return
             if (starts-with($line, "declare variable ") and contains($line, " external;")) then (
@@ -1233,7 +1288,7 @@ declare function local:refresh-index-api($project-name as xs:string) {
     let $group-name := "oxygen"
     let $permissions := "rwsr-x---"
     return (
-        xmldb:copy($source-collection-uri, $target-collection-uri, $resource),
+        xmldb:copy-resource($source-collection-uri, $resource, $target-collection-uri, $resource),
         sm:chgrp(xs:anyURI($target-collection-uri||$resource), $group-name),
         sm:chmod(xs:anyURI($target-collection-uri||$resource), $permissions)
     )
@@ -1359,7 +1414,7 @@ declare function local:zip-development-collection() as empty-sequence() {
     let $source-collection-uri := $ediarum-path||"/setup/development"
     let $zip-collection := $ediarum-path||"/setup/zip"
     let $add-zip-col := xmldb:create-collection($ediarum-path||"/setup", "zip")
-    let $copy-development-collection := xmldb:copy($source-collection-uri, $zip-collection)
+    let $copy-development-collection := xmldb:copy-collection($source-collection-uri, $zip-collection)
     let $rename-files := (
         xmldb:rename($zip-collection||"/development", "gitignore.txt", ".gitignore"),
         xmldb:rename($zip-collection||"/development", "PROJECTNAME_dev.xpr", $project-name||"_dev.xpr"),

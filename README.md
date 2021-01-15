@@ -25,6 +25,7 @@ for editing.
 * For installation see [INSTALLATION.md](INSTALLATION.md).
 * To use the **ediarum.DB**-App see [GUI.md](GUI.md).
 * For advanced setup see [SETUP.md](SETUP.md).
+* For tips for developers see [DEVELOPMENT.md](DEVELOP.md).
 
 ## License
 

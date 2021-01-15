@@ -2,15 +2,10 @@
 <div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
     <div data-template="project-pages:index-items">
         <h1>
-            <span data-template="project-pages:get-current-project">Current Project</span> - Zotero - <span data-template="project-pages:get-current-index-name">Register</span>
+            <span data-template="project-pages:get-current-project">Current Project</span> - <span data-template="project-pages:get-current-index-name">Register</span>
         </h1>
         <div data-template="project-pages:action-alert" />
-        <form role="search" action="" method="post">
-            <div class="form-group">
-                <input type="hidden" name="action" value="update-index"/>
-                <button type="submit" class="btn btn-default">Register aktualisieren!</button>
-            </div>
-        </form>
+        <div data-template="project-pages:form-update-zotero-index"/>
         <div data-template="project-pages:list-index-items"/>
     </div>
 </div>

@@ -3,13 +3,12 @@ xquery version "3.0";
 module namespace template-pages="http://www.bbaw.de/telota/software/ediarum-app/template-pages";
 import module namespace config="http://www.bbaw.de/telota/software/ediarum/config";
 import module namespace ediarum="http://www.bbaw.de/telota/software/ediarum/ediarum-app";
-
 declare namespace sm="http://exist-db.org/xquery/securitymanager";
 
 (:~ Fürs Login. :)
 declare function template-pages:login-menu($node as node(), $model as map(*)) as node() {
     let $log-action := request:get-parameter('laction','')
-    let $session := config:manage-session($log-action)
+    let $session := config:manage-session($log-action) 
     return
     if (config:get-current-user() eq 'guest') then
         <li class="dropdown">
