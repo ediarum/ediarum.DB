@@ -494,7 +494,7 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                 for $x in $entries//tei:person
                 let $name :=
                     if ($x/tei:persName[@type='reg'][1]/tei:forename)
-                    then (normalize-space(concat(string-join($x/tei:persName[@type='reg'][1]/tei:surname/text()), ', ', string-join($x/tei:persName[@type='reg'][1]/tei:forename/text()))))
+                    then (normalize-space(concat(string-join($x/tei:persName[@type='reg'][1]//tei:surname/text()), ', ', string-join($x/tei:persName[@type='reg'][1]//tei:forename/text()))))
                     else ($x/tei:persName[@type='reg'][1]/tei:name[1]/normalize-space())
                 let $lifedate :=
                     if ($x/tei:floruit)
