@@ -112,12 +112,13 @@ declare function admin-pages:projects($node as node(), $model as map(*)) as map(
     if(sm:is-dba(config:get-current-user())) then (
         let $action := request:get-parameter('action','')
         let $project-name := request:get-parameter('project-name','')
+        let $project-id-namespace := request:get-parameter('project-id-namespace','')
         let $result :=
             if ($action eq 'new-project') then (
                 if (not(index-of(config:get-projects(),$project-name))) then (
                     (: Das Projekt existiert noch nicht. :)
                     <result>
-                        {local:create-new-project($project-name)}
+                        {local:create-new-project($project-name, $project-id-namespace)}
                         <type>success</type>
                         <message>Das Projekt "{$project-name}" wurde angelegt!</message>
                     </result>
@@ -430,7 +431,7 @@ declare function local:copy_file_to_system_config($p, $source_path, $rel_collect
 };
 
 (: Generates a new Projekt with groups, collections and so on. :)
-declare function local:create-new-project($p) {
+declare function local:create-new-project($p, $idc) {
     if(sm:is-dba(config:get-current-user())) then (
         (: Das project-Verzeichnis wird angelegt. :)
         xmldb:create-collection($config:projects-path,$p),
@@ -468,9 +469,25 @@ declare function local:create-new-project($p) {
             xmldb:create-collection(concat("/db/system/config", config:project-collection-path($p)),"web"),
 
             (: Die Indexfunktionalitäten werden vorbereitet. :)
-            local:copy_file_to_project($p, $config:ediarum-db-path||"/setup", "oxygen", "ediarum.xql", "oxygen", "rwsr-x---")
+            local:copy_file_to_project($p, $config:ediarum-db-path||"/setup", "oxygen", "ediarum.xql", "oxygen", "rwsr-x---"),
+            
+            (: Skript für die ID-Generierung wird eingerichtet :)
+            local:copy_file_to_project($p, $config:ediarum-db-path||"/setup", "oxygen", "ediarum_idGenerator.xql", "oxygen", "rwsr-x---"),
+            local:add-id-char($p, $idc)
         )
     ) else ()
+};
+
+(: Trägt den ID-Buchstaben in die config.xml ein. :)
+declare function local:add-id-char($p, $idc){
+    let $config-file := doc(config:get-config-file($p))
+    let $new-char :=
+        if($idc eq '')
+        then('X')
+        else($idc)
+    for $id-char in $config-file//id-namespace
+    return
+        update replace $id-char with <id-namespace>{$new-char}</id-namespace>
 };
 
 (: Deletes a project and removes the groups. :)
