@@ -494,8 +494,8 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                 for $x in $entries//tei:person
                 let $name :=
                     if ($x/tei:persName[@type='reg'][1]/tei:forename)
-                    then (normalize-space(concat(string-join($x/tei:persName[@type='reg'][1]/tei:surname/text()), ', ', string-join($x/tei:persName[@type='reg'][1]/tei:forename/text()))))
-                    else ($x/tei:persName[@type='reg'][1]/tei:name[1]/normalize-space())
+                    then (concat(normalize-space(string-join($x/tei:persName[@type='reg'][1]/tei:surname/text())), ', ', normalize-space(string-join($x/tei:persName[@type='reg'][1]/tei:forename/text()))))
+                    else (normalize-space(string-join($x/tei:persName[@type='reg'][1]/tei:name[1]/text())))
                 let $lifedate :=
                     if ($x/tei:floruit)
                     then (concat(' (', $x/tei:floruit, ')'))
@@ -504,7 +504,7 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                         else ()
                 let $note :=
                     if ($x/tei:note//text() and $show-details='note')
-                    then (concat(' (', $x/tei:note//normalize-space(), ')'))
+                    then (concat(' (', normalize-space(string-join($x/tei:note//text())), ')'))
                     else ()
                 order by if ($order) then $name else ()
                 return
@@ -528,8 +528,8 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                 for $place in $entries//tei:place
                 let $name :=
                     if ($place[ancestor::tei:place])
-                    then ($place/ancestor::tei:place/tei:placeName[@type='reg'][1]/normalize-space()||' - '||$place/tei:placeName[@type='reg'][1]/normalize-space())
-                    else ($place/tei:placeName[@type='reg'][1]/normalize-space())
+                    then (normalize-space(string-join($place/ancestor::tei:place/tei:placeName[@type='reg'][1]/text()))||' - '||normalize-space(string-join($place/tei:placeName[@type='reg'][1]/text())))
+                    else (normalize-space(string-join($place/tei:placeName[@type='reg'][1]/text())))
                 let $altname :=
                     if ($place/tei:placeName[@type='alt'] and $show-details='altname')
                     then (' ['||
@@ -537,14 +537,14 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                             for $altname at $pos in $place/tei:placeName[@type='alt']
                             return
                             if ($pos=1)
-                            then ($altname/normalize-space())
-                            else (', '||$altname/normalize-space())
+                            then (normalize-space(string-join($altname/text())))
+                            else (', '||normalize-space(string-join($altname/text())))
                         )
                     ||']')
                     else ()
                 let $note :=
                     if ($place/tei:note//text() and $show-details='note')
-                    then (concat(' (', $place/tei:note[1]//normalize-space(), ')'))
+                    then (concat(' (', normalize-space(string-join($place/tei:note[1]//text())), ')'))
                     else ()
                 order by if ($order) then $name[1] else ()
                 return
@@ -568,8 +568,8 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                 for $item in $entries//tei:item
                 let $name :=
                     if ($item[ancestor::tei:item])
-                    then ($item/ancestor::tei:item/tei:label[@type='reg'][1]/normalize-space()||' - '||$item/tei:label[@type='reg'][1]/normalize-space())
-                    else ($item/tei:label[@type='reg'][1]/normalize-space())
+                    then (normalize-space(string-join($item/ancestor::tei:item/tei:label[@type='reg'][1]/text()))||' - '||normalize-space(string-join($item/tei:label[@type='reg'][1]/text())))
+                    else (normalize-space(string-join($item/tei:label[@type='reg'][1]/text())))
                 order by if ($order) then $name[1] else ()
                 return
                 try {
@@ -590,7 +590,7 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
         let $ul :=
             element ul {
                 for $org in $entries//tei:org
-                let $name := $org/tei:orgName[@type='reg'][1]/normalize-space()
+                let $name := normalize-space(string-join($org/tei:orgName[@type='reg'][1]/text()))
                 order by if ($order) then $name[1] else ()
                 return
                     try {
@@ -613,9 +613,9 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                 for $x in $entries//tei:bibl
                 let $author :=
                     if ($x/tei:author[1]/tei:persName[1]/tei:surname/normalize-space())
-                    then (concat($x/tei:author[1]/tei:persName[1]/tei:surname/normalize-space(), ', '))
+                    then (concat(normalize-space(string-join($x/tei:author[1]/tei:persName[1]/tei:surname/text())), ', '))
                     else ()
-                let $title := $x/tei:title/normalize-space()
+                let $title := normalize-space(string-join($x/tei:title/text()))
                 order by $author, $title
                 return
                     try {
@@ -636,7 +636,7 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
         let $ul :=
             element ul {
                 for $x in collection($data-collection)//tei:TEI[.//tei:correspAction]
-                let $title := $x//tei:titleStmt/tei:title/normalize-space()
+                let $title := normalize-space(string-join($x//tei:titleStmt/tei:title/text()))
                 order by $x//tei:correspAction[@type='sent']/tei:date/(@when|@from|@notBefore)/data(.)
                 return
                     try {
