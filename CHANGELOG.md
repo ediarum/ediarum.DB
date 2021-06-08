@@ -11,9 +11,24 @@ by
 
 ------------
 
-##
+## Version 4.0.1
 
-* Display cartographer names in oxygen-zotero-API.
+* FEATURE: Add ID generator
+
+## Version 4.0.0
+
+* UPDATE: Update to eXist 5
+* FEATURE: Display cartographer names in oxygen-zotero-API.
+* FEATURE: Include child elements of forenames for index labels.
+* BUGFIX: Fixed xPaths for removing oXygen comments from index values.
+
+## Version 3.2.6 of 2019-05-15
+
+* FEATURE: Add unordered index api"
+
+## Version 3.2.5 of 2019-05-15
+
+* FEATURE: Add warning alert to delete project action
 
 ## Version 3.2.4 of 2019-02-12
 

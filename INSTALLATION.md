@@ -11,7 +11,7 @@ On Linux eXist can be installed with the command `java -jar eXist-{version}.jar 
 `data dir` is the *absolute* path to the subdirectory (e.g.`/path/to/data`).You will be asked to set the admin password.
 You can leave the default settings for maximum memory (1024 MB) and cache (128 MB).
 
-*Note:* With Windows 10 there may be a problem if you leave the default memory of 2048 MB. It is therefore recommended to reduce the memory to 1024 MB during installation.
+*Note:* With Windows 10 there may be a problem if you leave the default memory of 2048 MB. If you face this problem reduce the memory to 1024 MB during installation.
 It can also lead to problems if exist is installed as a *service* at startup.
 
 The database initially runs under the standard port 8080, but this can be adjusted (see [Setup](#db-setup)).

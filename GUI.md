@@ -206,6 +206,8 @@ Only the administrators of the database have access to the *Verwaltung* (adminis
 
 A list of projects is displayed here. You can create new projects or delete existing ones.
 
+For new projects a ID namespace can be given, e.g. a letter (default is `X`). It is be used with the id generator script which generates unique IDs of the form `X0000000`. The script is found in the project collection under `oxygen/ediarum_idGenerator.xql` and can be used with the corresponding action of ediarum.BASE.
+
 ### "exist-db"
 
 Information about the existing eXist-db installation and the current **ediarum.DB** app.

@@ -74,6 +74,7 @@
             <or>
                 <equals arg1="${git.branch}" arg2="master"/>
                 <equals arg1="${git.branch}" arg2="HEAD"/>
+                <equals arg1="${git.branch}" arg2="develop"/>
             </or>
         </condition>
         <delete>
