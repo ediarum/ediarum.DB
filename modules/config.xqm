@@ -17,7 +17,7 @@ declare namespace functx = "http://www.functx.com";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare namespace owl="http://www.w3.org/2002/07/owl#";
 
-(:Für das SKOS-Anbindung als Standard Register:)
+(:Für das SKOS-Anbindung als projektspezifisches Register:)
 declare namespace skos="http://www.w3.org/2004/02/skos/core#";
 declare namespace rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
@@ -100,13 +100,6 @@ declare variable $config:ediarum-indexes := [
             "id": "comments",
             "label": "Anmerkungsregister",
             "active": "false"
-        },
-        map {
-            "id": "concepts",
-            "label": "Konzepte",
-            "file": "Register/Thesaurus.xml",
-            "collection": "Register/Thesaurus",
-            "active": "true"
         }];
 
 declare function functx:escape-for-regex($arg as xs:string?) as xs:string {
@@ -684,26 +677,6 @@ declare function config:get-ediarum-index-with-params($project-name as xs:string
                         } catch * {
                             error((), "Error in file: "||document-uri(root($x))||" in entry: "||serialize($x))
                         }
-            }
-        return
-            $ul
-    )
-     case "concepts" return (
-        let $ul :=
-            element ul {
-                for $concept in $entries//skos:Concept
-                let $title := $concept//normalize-space()
-                return
-                    try {
-                        element li {
-                            attribute xml:id { $concept/substring-after(@rdf:about,'#')},
-                            element span {
-                                $title
-                            }
-                        }
-                    } catch * {
-                        error((), "Error in file: "||document-uri(root($concept))||" in entry: "||serialize($concept))
-                    }
             }
         return
             $ul
