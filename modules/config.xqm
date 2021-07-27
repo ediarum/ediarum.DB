@@ -17,7 +17,7 @@ declare namespace functx = "http://www.functx.com";
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare namespace owl="http://www.w3.org/2002/07/owl#";
 
-(:Für das SKOS-Anbindung als projektspezifisches Register:)
+(:Für SKOS-Anbindung als projektspezifisches Register:)
 declare namespace skos="http://www.w3.org/2004/02/skos/core#";
 declare namespace rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
