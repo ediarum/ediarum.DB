@@ -7,13 +7,14 @@ xquery version "3.1";
 module namespace config="http://www.bbaw.de/telota/software/ediarum/config";
 import module namespace ediarum="http://www.bbaw.de/telota/software/ediarum/ediarum-app" at "./ediarum.xql";
 import module namespace http = "http://expath.org/ns/http-client";
+import module namespace functx = "http://www.functx.com";
 
 declare namespace templates="http://exist-db.org/xquery/templates";
 declare namespace exist="http://exist.sourceforge.net/NS/exist";
 declare namespace repo="http://exist-db.org/xquery/repo";
 declare namespace expath="http://expath.org/ns/pkg";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
-declare namespace functx = "http://www.functx.com";
+
 (: Für den Import von Zotero-Items :)
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare namespace owl="http://www.w3.org/2002/07/owl#";
@@ -97,30 +98,6 @@ declare variable $config:ediarum-indexes := [
             "label": "Anmerkungsregister",
             "active": "false"
         }];
-
-declare function functx:escape-for-regex($arg as xs:string?) as xs:string {
-    replace($arg, '(\.|\[|\]|\\|\||\-|\^|\$|\?|\*|\+|\{|\}|\(|\))','\\$1')
-};
-
-declare function functx:substring-before-match($arg as xs:string?, $regex as xs:string) as xs:string {
-    tokenize($arg,$regex)[1]
-};
-
-declare function functx:substring-after-match($arg as xs:string?, $regex as xs:string) as xs:string? {
-    replace($arg,concat('^.*?',$regex),'')
-};
-
-declare function functx:substring-before-last ($arg as xs:string?, $delim as xs:string)  as xs:string {
-    if (matches($arg, functx:escape-for-regex($delim)))
-    then replace($arg,
-        concat('^(.*)', functx:escape-for-regex($delim),'.*'),
-        '$1')
-    else ''
-};
-
-declare function functx:substring-after-last($arg as xs:string?, $delim as xs:string) as xs:string {
-    replace ($arg,concat('^.*',functx:escape-for-regex($delim)),'')
-};
 
 declare function config:app-meta($node as node(), $model as map(*)) as element()* {
     <meta xmlns="http://www.w3.org/1999/xhtml" name="description" content="{$config:repo-descriptor/repo:description/text()}"/>,

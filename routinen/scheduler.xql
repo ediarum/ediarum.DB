@@ -1,13 +1,6 @@
 xquery version "3.0";
 
-declare namespace functx = "http://www.functx.com";
-
-declare function functx:day-of-week($date as xs:anyAtomicType?) as xs:integer? {
-    if (empty($date)) then
-        ()
-    else
-        xs:integer((xs:date($date) - xs:date('1901-01-06')) div xs:dayTimeDuration('P1D')) mod 7
-};
+import module namespace functx = "http://www.functx.com";
 
 declare function local:test-cron($cron as xs:string) as xs:boolean {
     let $get-cron-param-simple :=
