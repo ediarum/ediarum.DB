@@ -166,7 +166,7 @@ declare function project-pages:index-items($node as node(), $model as map(*)) as
         let $result :=
             if ($action eq 'update-index') then (
                 let $index := config:get-index($project, $index-id)
-                let $connection-id := $index/config:get-parameter("connection-id")
+                let $connection-id := config:get-parameter($index, "connection-id")
                 let $result := local:update-zotero-connection-in-blocks($connection-id)
                 return
                     if ($result/type eq "success") then (
@@ -310,7 +310,7 @@ declare function project-pages:list-index-items($node as node(), $model as map(*
     return
     if ($index/@type="zotero") then
         let $collection-id := config:get-current-zotero-collection()
-        let $collection-id := $index/config:get-parameter("collection-id")
+        let $collection-id := config:get-parameter($index, "collection-id")
         let $connection-id := config:get-current-zotero-connection-id()
         let $connection := config:get-zotero-connection-by-id($project-name, $connection-id)
         let $zotero-group := $connection/group-id/string()

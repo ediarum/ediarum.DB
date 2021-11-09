@@ -998,7 +998,7 @@ declare function config:get-zotero-index($project-name as xs:string, $zotero-ind
 
 declare function config:is-ediarum-index-active($project-name as xs:string, $ediarum-index-id as xs:string) as xs:boolean {
     let $index := config:get-indexes($project-name)/index[@type='ediarum' and @id=$ediarum-index-id]
-    let $is-active := if ($index and $index/config:get-parameter('status') eq 'active') then (true())
+    let $is-active := if ($index and config:get-parameter($index, 'status') eq 'active') then (true())
         else if ($config:ediarum-indexes?*[?id=$ediarum-index-id]?active eq 'true') then (true())
         else false()
     return $is-active
@@ -1531,8 +1531,8 @@ declare function config:update-zotero-connection-in-blocks($project-name as xs:s
 };
 
 (: config.xml - Object orientierter Ansatz :)
-declare function config:get-parameter($name as xs:string) as xs:string {
-    let $parameter := ./parameter[@name eq $name]
+declare function config:get-parameter($index as node(), $name as xs:string) as xs:string {
+    let $parameter := $index/parameter[@name eq $name]
     let $value := $parameter/@value/string()
     return
         if ($parameter) then (
