@@ -868,8 +868,8 @@ declare function config:get-zotero-connection-by-id($project-name as xs:string, 
         )
 };
 
-declare function config:zotero-connection-get-name() as xs:string? {
-    ./label/string()
+declare function config:zotero-connection-get-name($zotero-index as node()) as xs:string? {
+    $zotero-index/label/string()
 };
 
 declare function config:get-zotero-connections($project-name as xs:string) as node()* {
@@ -953,7 +953,7 @@ declare function config:get-project-index($project-name as xs:string, $project-i
 
 declare function config:get-zotero-index($project-name as xs:string, $zotero-index-id as xs:string) as node() {
     let $index := config:get-indexes($project-name)/index[@id eq $zotero-index-id]
-    let $index-name := $index/config:zotero-connection-get-name()
+    let $index-name := config:zotero-connection-get-name($index)
     let $connection-id := $index/parameter[@name eq "connection-id"]/@value/string()
     let $collection-id := $index/parameter[@name eq "collection-id"]/@value/string()
     let $zotero-group := config:get-zotero-connection-by-id($project-name, $connection-id)/group-id/string()
@@ -1503,7 +1503,7 @@ declare function config:update-file($resource as xs:string, $contents as item())
 
 declare function config:update-zotero-connection-in-blocks($project-name as xs:string, $connection-id as xs:string) as node() {
     let $connection := config:get-zotero-connection-by-id($project-name, $connection-id)
-    let $connection-name := $connection/config:zotero-connection-get-name()
+    let $connection-name := config:zotero-connection-get-name($connection)
     let $items := config:get-zotero-collection-items($project-name, $connection-id, "", true())
     let $last-version := max($items/version)
     return

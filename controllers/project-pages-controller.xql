@@ -1356,7 +1356,7 @@ declare function local:remove-project-admin($user-name as xs:string) as node() {
 declare function local:remove-zotero-connection($connection-id as xs:string) {
     let $project-name := config:get-current-project()
     let $config-file := doc(config:get-config-file($project-name))
-    let $connection-name := config:get-zotero-connection-by-id($project-name, $connection-id)/config:zotero-connection-get-name()
+    let $connection-name := config:zotero-connection-get-name(config:get-zotero-connection-by-id($project-name, $connection-id))
     let $parameters :=
         <parameters>
             <param name="connection-id" value="{$connection-id}"/>
