@@ -335,7 +335,7 @@ declare function project-pages:list-index-items($node as node(), $model as map(*
         )
     else (
         let $xml := util:eval(xs:anyURI("/db/projects/"||$project-name||"/oxygen/ediarum.xql?index="||$index-id), false(), ())
-        let $items := $xml//*:item
+        let $items := $xml//(*:item|li)
         return (
             <h2>{count($items)} Einträge</h2>,
             <ul class="list-group">
