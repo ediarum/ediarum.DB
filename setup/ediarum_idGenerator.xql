@@ -1,24 +1,14 @@
 xquery version "3.0";
 
+import module namespace functx = "http://www.functx.com";
+
 declare namespace tei = "http://www.tei-c.org/ns/1.0";
-declare namespace functx = "http://www.functx.com";
 
 declare variable $url := request:get-url();
 declare variable $project-name := substring-before(substring-after($url, "/projects/"), "/");
 
 declare variable $doc-path := '/db/projects/'||$project-name||'/data';
 declare variable $project-letter := doc('/db/projects/'||$project-name||'/config.xml')//id-namespace/text();
-
-
-declare function functx:repeat-string($stringToRepeat as xs:string?, $count as xs:integer) as xs:string {
-    string-join((for $i in 1 to $count return $stringToRepeat),'')
-};
-
-declare function functx:pad-integer-to-length ($integerToPad as xs:anyAtomicType?, $length as xs:integer ) as xs:string {
-    if ($length < string-length(string($integerToPad)))
-    then (error(xs:QName('functx:Integer_Longer_Than_Length')))
-    else concat(functx:repeat-string('0',$length - string-length(string($integerToPad))),string($integerToPad))
-};
 
 declare function local:get-new-id($path as xs:string, $project-char as xs:string){
     (: Neue ID zufällig generieren. :)

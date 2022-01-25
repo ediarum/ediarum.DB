@@ -3,26 +3,7 @@ xquery version "3.1";
 module namespace project-pages="http://www.bbaw.de/telota/software/ediarum-app/project-pages";
 import module namespace config="http://www.bbaw.de/telota/software/ediarum/config";
 import module namespace http = "http://expath.org/ns/http-client";
-declare namespace functx = "http://www.functx.com";
-
-declare function functx:escape-for-regex($arg as xs:string?) as xs:string {
-   replace($arg, '(\.|\[|\]|\\|\||\-|\^|\$|\?|\*|\+|\{|\}|\(|\))','\\$1')
-};
-
-declare function functx:is-a-number($value as xs:anyAtomicType?) as xs:boolean {
-    string(number($value)) != 'NaN'
-};
-
-declare function functx:substring-before-last($arg as xs:string?, $delim as xs:string) as xs:string {
-    if (matches($arg, functx:escape-for-regex($delim))) then
-        replace($arg,concat('^(.*)', functx:escape-for-regex($delim),'.*'),'$1')
-    else
-        ''
-};
-
-declare function functx:substring-after-last($arg as xs:string?, $delim as xs:string) as xs:string {
-    replace ($arg,concat('^.*',functx:escape-for-regex($delim)),'')
-};
+import module namespace functx = "http://www.functx.com";
 
 declare function project-pages:action-alert($node as node(), $model as map(*)) as node()? {
     let $result := $model("result")
