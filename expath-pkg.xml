@@ -4,7 +4,7 @@
     <dependency package="http://exist-db.org/apps/shared"/>
     <dependency package="http://www.functx.com" semver-min="1.0.1"/>
     <xquery>
-      <namespace>http://www.bbaw.de/telota/software/ediarum/existdb</namespace>
-      <file>ediarum.xql</file>
+        <namespace>http://www.bbaw.de/telota/software/ediarum/existdb</namespace>
+        <file>ediarum.xql</file>
     </xquery>
 </package>
