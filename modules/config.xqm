@@ -14,6 +14,8 @@ declare namespace exist="http://exist.sourceforge.net/NS/exist";
 declare namespace repo="http://exist-db.org/xquery/repo";
 declare namespace expath="http://expath.org/ns/pkg";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
+
+
 (: Für den Import von Zotero-Items :)
 declare namespace dc="http://purl.org/dc/elements/1.1/";
 declare namespace owl="http://www.w3.org/2002/07/owl#";
@@ -867,8 +869,8 @@ declare function config:get-zotero-connection-by-id($project-name as xs:string, 
         )
 };
 
-declare function config:zotero-connection-get-name() as xs:string? {
-    ./label/string()
+declare function config:zotero-connection-get-name($zotero-index as node()) as xs:string? {
+    $zotero-index/label/string()
 };
 
 declare function config:get-zotero-connections($project-name as xs:string) as node()* {
@@ -952,7 +954,7 @@ declare function config:get-project-index($project-name as xs:string, $project-i
 
 declare function config:get-zotero-index($project-name as xs:string, $zotero-index-id as xs:string) as node() {
     let $index := config:get-indexes($project-name)/index[@id eq $zotero-index-id]
-    let $index-name := $index/config:zotero-connection-get-name()
+    let $index-name := config:zotero-connection-get-name($index)
     let $connection-id := $index/parameter[@name eq "connection-id"]/@value/string()
     let $collection-id := $index/parameter[@name eq "collection-id"]/@value/string()
     let $zotero-group := config:get-zotero-connection-by-id($project-name, $connection-id)/group-id/string()
@@ -997,7 +999,7 @@ declare function config:get-zotero-index($project-name as xs:string, $zotero-ind
 
 declare function config:is-ediarum-index-active($project-name as xs:string, $ediarum-index-id as xs:string) as xs:boolean {
     let $index := config:get-indexes($project-name)/index[@type='ediarum' and @id=$ediarum-index-id]
-    let $is-active := if ($index and $index/config:get-parameter('status') eq 'active') then (true())
+    let $is-active := if ($index and config:get-parameter($index, 'status') eq 'active') then (true())
         else if ($config:ediarum-indexes?*[?id=$ediarum-index-id]?active eq 'true') then (true())
         else false()
     return $is-active
@@ -1502,7 +1504,7 @@ declare function config:update-file($resource as xs:string, $contents as item())
 
 declare function config:update-zotero-connection-in-blocks($project-name as xs:string, $connection-id as xs:string) as node() {
     let $connection := config:get-zotero-connection-by-id($project-name, $connection-id)
-    let $connection-name := $connection/config:zotero-connection-get-name()
+    let $connection-name := config:zotero-connection-get-name($connection)
     let $items := config:get-zotero-collection-items($project-name, $connection-id, "", true())
     let $last-version := max($items/version)
     return
@@ -1530,8 +1532,8 @@ declare function config:update-zotero-connection-in-blocks($project-name as xs:s
 };
 
 (: config.xml - Object orientierter Ansatz :)
-declare function config:get-parameter($name as xs:string) as xs:string {
-    let $parameter := ./parameter[@name eq $name]
+declare function config:get-parameter($index as node(), $name as xs:string) as xs:string {
+    let $parameter := $index/parameter[@name eq $name]
     let $value := $parameter/@value/string()
     return
         if ($parameter) then (

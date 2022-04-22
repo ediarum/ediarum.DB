@@ -11,6 +11,10 @@ by
 
 ------------
 
+## Version 4.0.2
+
+* UPDATE: Update to eXist-db 5.3
+
 ## Version 4.0.1
 
 * FEATURE: Add ID generator

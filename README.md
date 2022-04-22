@@ -12,7 +12,7 @@ Developed by TELOTA, a DH working group of the Berlin-Brandenburg Academey of Sc
 ## What does it do?
 
 **ediarum.DB** is an xar-Package for exist-db (<https://github.com/eXist-db/exist>).
-It is tested on exist-db version 5.2. With the help of
+It is tested on exist-db version 5.3. With the help of
 ediarum.DB administrators can configure exist-db as central database for ediarum.
 So, different services and APIs can be set up, and XML resources can be stored and accessed
 for editing.

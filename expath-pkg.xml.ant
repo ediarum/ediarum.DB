@@ -2,6 +2,7 @@
 <package xmlns="http://expath.org/ns/pkg" name="http://www.bbaw.de/telota/software/ediarum" abbrev="ediarum" version="@VERSION@" spec="1.0">
     <title>ediarum</title>
     <dependency package="http://exist-db.org/apps/shared"/>
+    <dependency package="http://www.functx.com"/>
     <xquery>
       <namespace>http://www.bbaw.de/telota/software/ediarum/existdb</namespace>
       <file>ediarum.xql</file>
