@@ -911,7 +911,7 @@ declare function config:get-project-index($project-name as xs:string, $project-i
             doc(config:get-data-collection($project-name)||"/"||$index-collection)
         else
             collection(config:get-data-collection($project-name)||"/"||$index-collection)
-    let $items := util:eval-inline($col ,'.//'||$data-node)
+    let $items := $col/util:eval-inline(. ,'.//'||$data-node)
     let $list :=
         element {QName("http://www.tei-c.org/ns/1.0",'list')} {
             attribute type {"index"},
