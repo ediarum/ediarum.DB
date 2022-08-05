@@ -29,13 +29,7 @@ declare namespace scheduler="http://exist-db.org/xquery/scheduler";
          <div class="alert alert-warning" role="alert">{$message}</div>
      else if ($type eq 'danger') then
          <div class="alert alert-danger" role="alert">{$message}</div>
-     else (),
-    if (local:port-setup-is-not-active()) then (
-        <div class="alert alert-warning">
-            <span>Die eingestellten Ports haben sich geändert, bitte starten Sie die Datenbank neu. (Aktueller Port: {request:get-server-port()})</span>
-        </div>
-        )
-    else ()
+     else ()
  };
 
 declare function admin-pages:activate-projects-controller($node as node(), $model as map(*)) as node()? {
@@ -291,7 +285,7 @@ declare function admin-pages:setup-port-configuration($node as node(), $model as
                     <div class="navbar-header">
                         <span class="navbar-brand">Aktuelle Ports</span>
                     </div>
-                    <p class="navbar-text">{config:get-setup-property("port")} (SSL: {config:get-setup-property("sslPort")})</p>
+                    <p class="navbar-text">{config:get-setup-property("port")} (SSL: {config:get-setup-property("sslPort")}, aktueller Request über: {request:get-server-port()})</p>
                     <div class="navbar-collapse navbar-right">
                         <form action="" method="post">
                             <input type="hidden" name="action" value="change-port"/>
@@ -501,12 +495,6 @@ declare function local:delete-project($p) {
             let $nutzer-group := config:project-user-group($p)
             return sm:remove-group($nutzer-group))
         else ()
-    ) else ()
-};
-
-declare function local:port-setup-is-not-active() {
-    if(sm:is-dba(config:get-current-user())) then (
-        not(string(request:get-server-port()) eq config:get-setup-property("port"))
     ) else ()
 };
 
