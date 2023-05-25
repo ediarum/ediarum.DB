@@ -126,7 +126,9 @@ declare function config:copy($source-uri as xs:string, $target-uri as xs:string,
     return (
         not(false()=distinct-values((
             if (not(xmldb:collection-available($target-collection))) then (
-                config:mkcol($target-collection, $group, $permissions)
+                let $collection-permissions  := substring($permissions,1,2) || 'x' || substring($permissions,4,2) || 'x' || substring($permissions,7,2) || 'x'
+                return
+                config:mkcol($target-collection, $group, $collection-permissions)
             ) else (),
             xmldb:copy-resource($source-collection, $source-resource, $target-collection, $target-resource) eq $target-uri,
             sm:chgrp(xs:anyURI($target-uri), $group),
