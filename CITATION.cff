@@ -1,0 +1,19 @@
+abstract: "ediarum.DB is an xar-Package for exist-db. With the help of ediarum.DB administrators can configure exist-db as central database for ediarum. So, different services and APIs can be set up, and XML resources can be stored and accessed for editing."
+authors:
+  - given-names: Martin
+    family-names: Fechner
+    orcid: 'https://orcid.org/0000-0001-9233-0653'
+  - given-names: Fischer
+    family-names: Gordon
+    orcid: 'https://orcid.org/0009-0003-3822-7673'
+  - given-names: Lou
+    family-name: Klappenbach
+    orcid: 'https://orcid.org/0000-0001-6587-3353'
+cff-version: 1.2.0
+date-released: "2023-05-26"
+license: "GPL-3.0"
+message: "If you use this software, please cite it using these metadata."
+repository-code: "https://github.com/ediarum/ediarum.DB"
+title: ediarum.DB
+type: software
+version: 4.0.3

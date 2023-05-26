@@ -65,6 +65,9 @@
     <!-- Replace all ant filters in ant-files -->
     <target name="use-filters" depends="increase-build-number">
         <var name="project.version" unset="true"/>
+        <tstamp>
+            <format property="build.date" pattern="YYYY-MM-dd"/>
+        </tstamp>
         <exec executable="git" outputproperty="git.branch" failifexecutionfails="false">
             <arg line="rev-parse --abbrev-ref HEAD"/>
         </exec>
@@ -80,15 +83,18 @@
         <delete>
             <fileset dir="">
                 <include name="expath-pkg.xml"/>
+                <include name="CITATION.cff"/>
             </fileset>
         </delete>
         <copy todir=".">
             <fileset dir="">
                 <include name="expath-pkg.xml.ant"/>
+                <include name="CITATION.cff.ant"/>
             </fileset>
             <globmapper from="*.ant" to="*"/>
             <filterset>
                 <filter token="VERSION" value="${project.version}"/>
+                <filter token="DATE" value="${build.date}"/>
             </filterset>
         </copy>
     </target>
