@@ -72,7 +72,7 @@
                    value="${build.major.number}.${build.minor.number}.${build.patch.number}"
                    else="${build.major.number}.${build.minor.number}.${build.patch.number}.${git.branch}.${build.build.number}">
             <or>
-                <equals arg1="${git.branch}" arg2="master"/>
+                <equals arg1="${git.branch}" arg2="main"/>
                 <equals arg1="${git.branch}" arg2="HEAD"/>
                 <equals arg1="${git.branch}" arg2="develop"/>
             </or>
