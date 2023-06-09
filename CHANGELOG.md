@@ -11,6 +11,14 @@ by
 
 ------------
 
+## Version 4.1.0
+
+* UPDATE: Add citation.cff
+* UPDATE: Add new logo
+* UPDATE: Rename title to ediarum.DB
+* BUGFIX: Fix permissions settings for new collections in copy function
+* UPDATE: Rename id namespace to id prefix
+
 ## Version 4.0.2
 
 * UPDATE: Update to eXist-db 5.3
