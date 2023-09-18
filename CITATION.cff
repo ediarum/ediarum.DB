@@ -16,10 +16,10 @@ authors:
     family-names: Klappenbach
     orcid: 'https://orcid.org/0000-0001-6587-3353'
 cff-version: 1.2.0
-date-released: "2023-06-09"
+date-released: "2023-09-18"
 license: "GPL-3.0"
 message: "If you use this software, please cite it using these metadata."
 repository-code: "https://github.com/ediarum/ediarum.DB"
 title: ediarum.DB
 type: software
-version: 4.1.0
+version: 4.1.1
