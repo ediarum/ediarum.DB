@@ -7,13 +7,13 @@ authors:
     family-names: Gordon
     orcid: 'https://orcid.org/0009-0003-3822-7673'
   - given-names: Jan
-    family-name: Wierzoch
+    family-names: Wierzoch
     orcid: 'https://orcid.org/0000-0002-6388-4064'
   - given-names: Stefan
-    family-name: Dumont
+    family-names: Dumont
     orcid: 'https://orcid.org/0000-0002-6923-0950'
   - given-names: Lou
-    family-name: Klappenbach
+    family-names: Klappenbach
     orcid: 'https://orcid.org/0000-0001-6587-3353'
 cff-version: 1.2.0
 date-released: "@DATE@"
