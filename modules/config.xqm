@@ -9,7 +9,7 @@ import module namespace ediarum="http://www.bbaw.de/telota/software/ediarum/edia
 import module namespace http = "http://expath.org/ns/http-client";
 import module namespace functx = "http://www.functx.com";
 
-declare namespace templates="http://exist-db.org/xquery/templates";
+declare namespace templates="http://exist-db.org/xquery/html-templating";
 declare namespace exist="http://exist.sourceforge.net/NS/exist";
 declare namespace repo="http://exist-db.org/xquery/repo";
 declare namespace expath="http://expath.org/ns/pkg";
